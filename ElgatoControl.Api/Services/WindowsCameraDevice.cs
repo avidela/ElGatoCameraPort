@@ -47,6 +47,8 @@ public class WindowsCameraDevice : ICameraDevice
 
     public string GetControls() => "Windows DirectShow API active";
 
+    public Dictionary<string, int> GetControlValues() => new Dictionary<string, int>();
+
     public void ResetToDefaults()
     {
         // Placeholder for Windows reset logic

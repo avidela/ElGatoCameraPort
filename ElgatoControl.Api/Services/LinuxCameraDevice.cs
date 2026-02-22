@@ -78,7 +78,19 @@ public class LinuxCameraDevice : ICameraDevice
         }
 
         string mappedProp = MapProperty(property);
-        string result = RunCommand("v4l2-ctl", $"-d {device} --set-ctrl={mappedProp}={value}");
+        int mappedValue = value;
+        
+        // Translate Normalized SDUI Percentages back into RAW Hardware values
+        if (property == CameraProperty.Pan)
+        {
+            mappedValue = value * 25920; 
+        }
+        else if (property == CameraProperty.Tilt)
+        {
+            mappedValue = value * 14580;
+        }
+
+        string result = RunCommand("v4l2-ctl", $"-d {device} --set-ctrl={mappedProp}={mappedValue}");
         
         return string.IsNullOrEmpty(result) || !result.Contains("error", StringComparison.OrdinalIgnoreCase);
     }
@@ -88,6 +100,62 @@ public class LinuxCameraDevice : ICameraDevice
         string? device = FindDevice();
         if (device == null) return "Camera not found";
         return RunCommand("v4l2-ctl", $"-d {device} -L");
+    }
+
+    public Dictionary<string, int> GetControlValues()
+    {
+        var values = new Dictionary<string, int>();
+        string raw = GetControls();
+        if (string.IsNullOrEmpty(raw) || raw.StartsWith("Error")) return values;
+
+        var activeHardwareMap = new Dictionary<string, int>();
+        foreach (var line in raw.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var match = Regex.Match(line, @"([a-z_]+).*?:.*?(\-?\d+)");
+            if (match.Success && match.Groups.Count >= 3)
+            {
+                if (int.TryParse(match.Groups[2].Value, out int val))
+                {
+                    activeHardwareMap[match.Groups[1].Value] = val;
+                }
+            }
+        }
+
+        var hwKeyMap = new Dictionary<string, string>
+        {
+            { "zoom", "zoom_absolute" },
+            { "pan", "pan_absolute" },
+            { "tilt", "tilt_absolute" },
+            { "contrast", "contrast" },
+            { "saturation", "saturation" },
+            { "sharpness", "sharpness" },
+            { "exposure", "exposure_absolute" },
+            { "gain", "gain" },
+            { "white_balance", "white_balance_temperature" },
+            { "brightness", "brightness" }
+        };
+
+        foreach (var section in GetLayout())
+        {
+            foreach (var control in section.Controls)
+            {
+                if (hwKeyMap.TryGetValue(control.Id, out var hwKey) && activeHardwareMap.TryGetValue(hwKey, out var hwVal))
+                {
+                    int finalVal = hwVal;
+                    // Translate RAW hardware values back into SDUI Percentages
+                    if (control.Id == "pan") finalVal = hwVal / 25920;
+                    if (control.Id == "tilt") finalVal = hwVal / 14580;
+                    
+                    values[control.Id] = finalVal;
+                }
+                else
+                {
+                    values[control.Id] = control.DefaultValue;
+                }
+            }
+        }
+
+        return values;
     }
 
     public void ResetToDefaults()
@@ -168,8 +236,8 @@ public class LinuxCameraDevice : ICameraDevice
             new ControlSectionData("Frame", "frame", new List<CameraControl>
             {
                 new CameraControl("zoom", "Zoom / FOV", 100, 400, 1, 100, "%"),
-                new CameraControl("pan", "Pan", -2592000, 2592000, 3600, 0),
-                new CameraControl("tilt", "Tilt", -1458000, 1458000, 3600, 0)
+                new CameraControl("pan", "Pan", -100, 100, 1, 0, "%"),
+                new CameraControl("tilt", "Tilt", -100, 100, 1, 0, "%")
             }),
             new ControlSectionData("Picture", "picture", new List<CameraControl>
             {

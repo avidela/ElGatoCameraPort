@@ -36,17 +36,8 @@ const ControlSection: React.FC<ControlSectionProps> = ({
                 </button>
             </div>
             <div className="section-body">
-                {id === 'frame' && onPresetClick && (
-                    <ZoomPreview
-                        zoom={values['zoom']}
-                        pan={values['pan']}
-                        tilt={values['tilt']}
-                        onPresetClick={onPresetClick}
-                        onDragChange={(type, val) => onChange(type, val)}
-                        onDragCommit={(type, val) => onCommit(type, val)}
-                    />
-                )}
-                {controls.map(control => (
+                {/* 1. Normal Controls (like Zoom) */}
+                {controls.filter(c => c.id !== 'pan' && c.id !== 'tilt').map(control => (
                     <ControlRow
                         key={control.id}
                         control={control}
@@ -55,6 +46,35 @@ const ControlSection: React.FC<ControlSectionProps> = ({
                         onCommit={onCommit}
                     />
                 ))}
+
+                {/* 2. Pan/Tilt Side-by-Side row */}
+                {id === 'frame' && controls.some(c => c.id === 'pan' || c.id === 'tilt') && (
+                    <div className="flex-row gap-2">
+                        {controls.filter(c => c.id === 'pan' || c.id === 'tilt').map(control => (
+                            <ControlRow
+                                key={control.id}
+                                control={control}
+                                value={values[control.id]}
+                                onChange={onChange}
+                                onCommit={onCommit}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* 3. Preview Box and Presets */}
+                {id === 'frame' && onPresetClick && (
+                    <ZoomPreview
+                        zoom={values['zoom'] || 100}
+                        pan={values['pan'] || 0}
+                        tilt={values['tilt'] || 0}
+                        onPresetClick={onPresetClick}
+                        onDragChange={(type, val) => {
+                            onChange(type, val);
+                            onCommit(type, val); // Trigger live API hit while dragging
+                        }}
+                    />
+                )}
             </div>
         </div>
     );

@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import ControlSection from './components/ControlSection';
 import CameraPreview from './components/CameraPreview';
-import type { ControlSectionData, VideoFormat } from './types';
+import DeviceCard from './components/DeviceCard';
+import ActionFooter from './components/ActionFooter';
+import { useCameraLayout } from './hooks/useCameraLayout';
+import type { VideoFormat } from './types';
 
 function App() {
   const [isPreviewOn, setIsPreviewOn] = useState(false); // Default OFF per user request
   const [showGrid, setShowGrid] = useState(true);
-  const [sections, setSections] = useState<ControlSectionData[]>([]);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [streamUrl, setStreamUrl] = useState('');
   const [status, setStatus] = useState('Ready');
   const [activePreset, setActivePreset] = useState<string | null>(null);
@@ -18,31 +19,10 @@ function App() {
   const [selectedFormat, setSelectedFormat] = useState<VideoFormat | null>(null);
   const [values, setValues] = useState<Record<string, number>>({});
 
+  // Abstracted Service (Angular style logic extraction)
+  const { sections, collapsed, toggleCollapse } = useCameraLayout(setValues);
+
   useEffect(() => {
-    // Fetch Dynamic Backend Layout
-    fetch('http://localhost:5000/api/camera/layout')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.layout) {
-          setSections(data.layout);
-
-          // Initialize default collapse states and values
-          const newCollapsed: Record<string, boolean> = {};
-          const newValues: Record<string, number> = {};
-
-          data.layout.forEach((sec: ControlSectionData) => {
-            newCollapsed[sec.id] = false;
-            sec.controls.forEach(c => {
-              newValues[c.id] = c.defaultValue;
-            });
-          });
-
-          setCollapsed(newCollapsed);
-          setValues(newValues);
-        }
-      })
-      .catch(console.error);
-
     fetch('http://localhost:5000/api/camera/formats')
       .then(res => res.json())
       .then(data => {
@@ -207,38 +187,15 @@ function App() {
     setValues(prev => ({ ...prev, [id]: value }));
   };
 
-  const toggleCollapse = (sectionId: string) => {
-    setCollapsed(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
-  };
-
   return (
     <div className="elgato-layout pro-theme">
       {/* Sidebar Panel - now a flex container for cards */}
       <aside className="sidebar">
         <div className="sidebar-content">
-          <div className="section static-section">
-            <div className="section-header no-collapse device-header">
-              <span className="section-title">Device</span>
-              <button className="save-icon-btn" title="Save to Memory" onClick={saveToCamera}>
-                <svg viewBox="0 0 24 24" fill="currentColor" width="16"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" /></svg>
-                SAVE
-              </button>
-            </div>
-            <div className="section-body">
-              <div className="device-info">
-                <div className="info-label">Input</div>
-                <select className="info-value-select">
-                  <option>Elgato Facecam MK.2</option>
-                </select>
-              </div>
-              <div className="device-info">
-                <div className="info-label">Format</div>
-                <div className="info-value format-text">
-                  {selectedFormat ? `${selectedFormat.width}x${selectedFormat.height} @ ${selectedFormat.fps}fps (${selectedFormat.codec})` : 'Loading...'}
-                </div>
-              </div>
-            </div>
-          </div>
+          <DeviceCard
+            selectedFormat={selectedFormat}
+            onSave={saveToCamera}
+          />
 
           {sections.map(section => (
             <ControlSection
@@ -257,10 +214,7 @@ function App() {
           ))}
         </div>
 
-        <div className="sidebar-footer">
-          <button className="full-reset-btn" onClick={resetDefaults}>Reset to Defaults</button>
-          <div className="status-bar">{status}</div>
-        </div>
+        <ActionFooter status={status} onReset={resetDefaults} />
       </aside>
 
       <CameraPreview

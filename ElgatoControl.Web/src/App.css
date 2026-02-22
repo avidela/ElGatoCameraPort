@@ -533,3 +533,15 @@ input::-webkit-inner-spin-button {
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Layout Utilities */
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}

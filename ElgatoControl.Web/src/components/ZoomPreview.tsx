@@ -6,18 +6,16 @@ interface ZoomPreviewProps {
     tilt: number; // -1458000 to 1458000
     onPresetClick: (id: string) => void;
     onDragChange: (type: 'pan' | 'tilt', value: number) => void;
-    onDragCommit: (type: 'pan' | 'tilt', value: number) => void;
 }
 
-const ZoomPreview: React.FC<ZoomPreviewProps> = ({ zoom, pan, tilt, onPresetClick, onDragChange, onDragCommit }) => {
+const ZoomPreview: React.FC<ZoomPreviewProps> = ({ zoom, pan, tilt, onPresetClick, onDragChange }) => {
     // Map zoom percentage to box size (e.g., Zoom 100 = 100%, Zoom 400 = 25%)
     const sizePerc = 100 / (zoom / 100);
 
-    // Normalize Pan (-2592000 to 2592000) to percentage (-50% to 50% relative to center)
-    // But we need total travel distance. 
+    // Normalize Pan (-100 to 100) to percentage (-50% to 50% relative to center)
     // If box size is S, its center can move by (100-S)/2 in each direction.
-    const maxPan = 2592000;
-    const maxTilt = 1458000;
+    const maxPan = 100;
+    const maxTilt = 100;
 
     const panPerc = (pan / maxPan) * ((100 - sizePerc) / 2);
     const tiltPerc = -(tilt / maxTilt) * ((100 - sizePerc) / 2); // Tilt is usually inverted up/down
@@ -56,8 +54,8 @@ const ZoomPreview: React.FC<ZoomPreviewProps> = ({ zoom, pan, tilt, onPresetClic
         const finalTilt = Math.round(newTilt);
 
         if (commit) {
-            onDragCommit('pan', finalPan);
-            onDragCommit('tilt', finalTilt);
+            onDragChange('pan', finalPan);
+            onDragChange('tilt', finalTilt);
         } else {
             onDragChange('pan', finalPan);
             onDragChange('tilt', finalTilt);
@@ -84,7 +82,8 @@ const ZoomPreview: React.FC<ZoomPreviewProps> = ({ zoom, pan, tilt, onPresetClic
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging, sizePerc]);
+        // Include update logic deps so React tracks state through closures
+    }, [isDragging, sizePerc, pan, tilt]);
 
     const boxStyle: React.CSSProperties = {
         width: `${sizePerc}%`,

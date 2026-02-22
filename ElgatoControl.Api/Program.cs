@@ -33,5 +33,30 @@ app.UseStaticFiles();
 
 // Register all abstracted camera endpoints
 app.MapCameraEndpoints();
+app.MapPresetEndpoints();
+app.MapStreamEndpoints();
+
+// Enforce Preset A on Hardware Boot (Absolute Backend Truth)
+using (var scope = app.Services.CreateScope())
+{
+    var camera = scope.ServiceProvider.GetRequiredService<ICameraDevice>();
+    string presetsFile = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "presets.json");
+    
+    if (System.IO.File.Exists(presetsFile))
+    {
+        try
+        {
+            var json = System.IO.File.ReadAllText(presetsFile);
+            var presets = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, ElgatoControl.Api.Endpoints.PresetState>>(json);
+            if (presets != null && presets.TryGetValue("A", out var stateA))
+            {
+                camera.SetProperty(CameraProperty.Zoom, stateA.Zoom);
+                camera.SetProperty(CameraProperty.Pan, stateA.Pan);
+                camera.SetProperty(CameraProperty.Tilt, stateA.Tilt);
+            }
+        }
+        catch { } // Ignore JSON parse errors on initial boot
+    }
+}
 
 app.Run("http://localhost:5000");
