@@ -1,6 +1,20 @@
 # ElgatoCameraPort
 
-A cross-platform web UI for controlling the **Elgato Facecam MK.2** (and compatible UVC cameras) on **Linux** and **Windows**. Built with a .NET 9 API backend and a React + TypeScript frontend, served as a single self-contained app on `http://localhost:5000`.
+A Linux desktop app for controlling the **Elgato Facecam MK.2** (and compatible UVC cameras). Packaged as a native Electron window — no browser required.
+
+Built with a .NET 9 API backend, a React + TypeScript frontend, and Electron.NET for the desktop shell.
+
+---
+
+## Install (Linux — Debian/Ubuntu/Mint)
+
+Download the latest `.deb` from the [Releases](../../releases) page and install it:
+
+```bash
+sudo apt install ./elgato-camera-control_1.0.0_amd64.deb
+```
+
+This will automatically install `ffmpeg` and `v4l-utils` as dependencies. Launch **Elgato Camera Control** from your application menu.
 
 ---
 
@@ -8,7 +22,7 @@ A cross-platform web UI for controlling the **Elgato Facecam MK.2** (and compati
 
 ```
 ElgatoCameraPort/
-├── ElgatoControl.Api/         # .NET 9 ASP.NET Core API (port 5000)
+├── ElgatoControl.Api/         # .NET 9 ASP.NET Core API + Electron shell
 │   ├── Endpoints/             # Minimal API endpoint groups
 │   │   ├── CameraEndpoints    # GET layout, GET controls, POST set/save/reset
 │   │   ├── PresetEndpoints    # GET/POST preset load & save (A–D)
@@ -30,45 +44,35 @@ ElgatoCameraPort/
         └── styles/            # Per-component SCSS (BEM)
 ```
 
-The backend auto-selects `LinuxCameraDevice` or `WindowsCameraDevice` at startup based on `OperatingSystem.IsWindows()`. On boot it applies **Preset A** (if saved) to the hardware immediately.
-
 ---
 
 ## System Requirements
 
 ### Linux
 
-```bash
-# v4l2-ctl — reads and writes camera controls (zoom, pan, tilt, etc.)
-sudo apt install v4l-utils
+- `ffmpeg` and `v4l-utils` — declared as `.deb` dependencies, installed automatically via `apt`
+- Camera must appear as `/dev/videoN` (standard UVC device)
 
-# ffmpeg — MJPEG stream for the live preview
-sudo apt install ffmpeg
-```
+> **Why v4l-utils?** The Linux camera service calls `v4l2-ctl --set-ctrl` under the hood. Without it, no camera controls work.
 
-> **Why v4l-utils?** The Linux camera service calls `v4l2-ctl --set-ctrl` and `v4l2-ctl --get-ctrl` under the hood. Without it, no camera controls will work.
-
-> **Why ffmpeg?** The `/api/stream` endpoint pipes FFmpeg output as a browser-readable MJPEG stream. Without it the live preview will not function (camera controls still work).
-
-### Windows
-
-No additional system tools required. Camera access uses the built-in Windows Media Foundation / DirectShow APIs via .NET.
+> **Why ffmpeg?** The `/api/stream` endpoint pipes FFmpeg output as an MJPEG stream for the live preview.
 
 ---
 
-## Running Locally (Development)
+## Development
 
 ### Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9)
 - [Node.js 20+](https://nodejs.org/)
+- `dotnet tool install ElectronNET.CLI -g` (for running the Electron window locally)
 
-### 1. Start the API
+### 1. Start the API (browser mode)
 
 ```bash
 cd ElgatoControl.Api
 dotnet run
-# Listening on http://localhost:5000
+# http://localhost:5000
 ```
 
 ### 2. Start the frontend dev server
@@ -77,35 +81,47 @@ dotnet run
 cd ElgatoControl.Web
 npm install
 npm run dev
-# Listening on http://localhost:5173
+# http://localhost:5173
 ```
 
-The frontend dev server proxies API calls to `http://localhost:5000`.
-
-### 3. Run as a desktop app (Electron)
+### 3. Run as a desktop Electron window
 
 ```bash
-# Install the CLI once
-dotnet tool install ElectronNET.CLI -g
+# Build the React frontend first
+cd ElgatoControl.Web && npm run build && cd ..
+cp -r ElgatoControl.Web/dist ElgatoControl.Api/wwwroot
 
-# Start in Electron window (from ElgatoControl.Api/)
+# Start Electron
 cd ElgatoControl.Api
 DOTNET_ROLL_FORWARD=LatestMajor electronize start
 ```
 
-> **Note:** `DOTNET_ROLL_FORWARD=LatestMajor` is needed because the `electronize` CLI targets .NET 6 but you have .NET 8+. This is a dev-time-only workaround — the built `.deb` is fully self-contained.
+> **Note:** `DOTNET_ROLL_FORWARD=LatestMajor` is needed because the `electronize` CLI targets .NET 6 but ships with .NET 8+. The built `.deb` is fully self-contained and doesn't require .NET on the user's machine.
 
 ---
 
-## Running with Docker (Linux only)
-
-The Dockerfile builds both the frontend and backend, installs `ffmpeg` and `v4l-utils` in the final image, and serves everything on port 5000.
+## Building the .deb
 
 ```bash
-# Build
-docker build -t elgato-control .
+./scripts/build-deb.sh
+# Output: ElgatoControl.Api/bin/Desktop/elgato-camera-control_1.0.0_amd64.deb
+```
 
-# Run — pass through the camera device
+### Releasing via GitHub Actions
+
+Tag a commit to trigger a release build that automatically attaches the `.deb` to a GitHub Release:
+
+```bash
+git tag v1.0.0
+git push --tags
+```
+
+---
+
+## Running with Docker (headless / server mode)
+
+```bash
+docker build -t elgato-control .
 docker run -d \
   --device /dev/video0:/dev/video0 \
   -p 5000:5000 \
@@ -114,23 +130,7 @@ docker run -d \
 
 Open `http://localhost:5000` in your browser.
 
-> **Note:** The `--device` flag is required on Linux so the container can access the camera. Use `v4l2-ctl --list-devices` on the host to find the correct `/dev/videoN` path.
-
----
-
-## Building for Production
-
-```bash
-# Frontend
-cd ElgatoControl.Web
-npm run build          # outputs to dist/
-
-# Backend (serves the frontend from wwwroot/)
-cd ElgatoControl.Api
-dotnet publish -c Release -o out
-cp -r ../ElgatoControl.Web/dist out/wwwroot
-dotnet out/ElgatoControl.Api.dll
-```
+> Use `v4l2-ctl --list-devices` to find the correct `/dev/videoN` path.
 
 ---
 
@@ -141,6 +141,7 @@ dotnet out/ElgatoControl.Api.dll
 | Backend | .NET 9, ASP.NET Core Minimal APIs |
 | Frontend | React 19, TypeScript, Vite |
 | Styling | SCSS (BEM), per-component partials |
+| Desktop shell | Electron.NET |
 | Linux camera | `v4l2-ctl` (v4l-utils) |
 | Stream | FFmpeg → MJPEG |
 | Container | Docker (Alpine base) |
