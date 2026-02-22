@@ -3,23 +3,44 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ElgatoControl.Avalonia.ViewModels"
+             xmlns:views="using:ElgatoControl.Avalonia.Views"
              mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="800"
              x:Class="ElgatoControl.Avalonia.Views.CameraControlsView"
              x:DataType="vm:MainViewModel">
 
     <UserControl.Styles>
         <StyleInclude Source="/AppStyles.axaml" />
+        <Style Selector="Border.card">
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="Padding" Value="10" />
+        </Style>
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto, *">
-        <!-- Header -->
-        <TextBlock Grid.Row="0" Classes="h3" Text="DEVICE" Margin="0,0,0,15" />
+        <!-- Header / Device Section -->
+        <Border Background="Transparent" Tapped="OnToggleDeviceCollapse">
+            <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,10">
+                 <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                     <Grid ColumnDefinitions="Auto, *">
+                         <TextBlock Grid.Column="0" Classes="h3" Text="DEVICE" Margin="0,0,6,0" />
+                         <PathIcon Grid.Column="1" Data="{Binding IsDeviceCollapsed, Converter={StaticResource ChevronConverter}}" Width="8" Height="8" VerticalAlignment="Center" Opacity="0.5"/>
+                     </Grid>
+                     <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding !IsDeviceCollapsed}">
+                         <TextBlock Text="{Binding SelectedFormat.Height, StringFormat='{}{0}p'}" FontSize="11" Foreground="{DynamicResource TextDimBrush}"/>
+                         <TextBlock Text="{Binding SelectedFormat.Fps, StringFormat='{}{0}fps'}" FontSize="11" Foreground="{DynamicResource TextDimBrush}" Opacity="0.6"/>
+                     </StackPanel>
+                 </StackPanel>
+                 <Button Grid.Column="1" Command="{Binding ResetDefaultsCommand}" ToolTip.Tip="Reset All Controls" Background="Transparent" BorderThickness="0" Padding="4">
+                     <PathIcon Data="M2,12A10,10 0 1,0 12,2A10,10 0 0,0 2,12M15.6,13.72L13.11,12.12V7.17H10.89V13.24L13.97,15.22L15.6,13.72Z" Width="14" Height="14" Foreground="{DynamicResource TextDimBrush}"/>
+                 </Button>
+            </Grid>
+        </Border>
 
-        <ScrollViewer Grid.Row="1" Margin="0,0,10,0">
+        <ScrollViewer Grid.Row="1" Margin="0,0,5,0" IsVisible="{Binding !IsDeviceCollapsed}">
             <ItemsControl ItemsSource="{Binding Sections}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Spacing="15"/>
+                        <StackPanel Spacing="10"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
@@ -27,82 +48,60 @@
                         <Border Classes="card">
                             <StackPanel Spacing="10">
                                 <!-- Section Title -->
-                                <TextBlock Text="{Binding Title}" Classes="h3" FontSize="16" />
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Grid.Column="0" Text="{Binding Title}" Classes="h3" FontSize="16" VerticalAlignment="Center" Background="Transparent" Tapped="OnToggleCollapse"/>
+                                    <Button Grid.Column="1" Command="{Binding ToggleCollapseCommand}" Background="Transparent" BorderThickness="0" Padding="5">
+                                        <PathIcon Data="{Binding IsCollapsed, Converter={StaticResource ChevronConverter}}" Width="10" Height="10" />
+                                    </Button>
+                                </Grid>
 
-                                <ItemsControl ItemsSource="{Binding Items}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Spacing="10"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-
-                                    <ItemsControl.DataTemplates>
-                                        <!-- Single Control Template -->
-                                        <DataTemplate DataType="vm:ControlViewModel">
-                                            <Grid RowDefinitions="Auto, Auto" Margin="0,5">
-                                                <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Label}" Classes="label" VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat='{}{0} %'}" Classes="primary" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
-                                                </Grid>
-
-                                                <Grid Grid.Row="1" ColumnDefinitions="*, 60">
-                                                    <Slider Grid.Column="0"
-                                                            Value="{Binding Value}"
-                                                            Minimum="{Binding Min}"
-                                                            Maximum="{Binding Max}"
-                                                            TickFrequency="{Binding Step}"
-                                                            IsSnapToTickEnabled="True"
-                                                            Margin="0,0,10,0" VerticalAlignment="Center"/>
-
-                                                    <NumericUpDown Grid.Column="1"
-                                                                   Value="{Binding Value}"
-                                                                   Minimum="{Binding Min}"
-                                                                   Maximum="{Binding Max}"
-                                                                   Increment="{Binding Step}"
-                                                                   FormatString="0"
-                                                                   VerticalAlignment="Center"/>
-                                                </Grid>
-                                            </Grid>
-                                        </DataTemplate>
-
-                                        <!-- Pair Control Template (Pan/Tilt) -->
-                                        <DataTemplate DataType="vm:ControlPairViewModel">
-                                            <Grid ColumnDefinitions="*, 10, *" Margin="0,2">
-                                                <!-- Left Control (Pan) -->
-                                                <Grid Grid.Column="0" RowDefinitions="Auto, Auto">
+                                <StackPanel IsVisible="{Binding !IsCollapsed}" Spacing="10">
+                                    <ItemsControl ItemsSource="{Binding Items}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Spacing="10"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.DataTemplates>
+                                            <!-- Templates omitted for brevity in this chunk -->
+                                            <DataTemplate DataType="vm:ControlViewModel">
+                                                <Grid RowDefinitions="Auto, Auto" Margin="0,5">
                                                     <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
-                                                        <TextBlock Grid.Column="0" Text="{Binding Left.Label}" Classes="label"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding Left.Value, StringFormat='{}{0} %'}" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Label}" Classes="label" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat='{}{0} %'}" Classes="primary" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
                                                     </Grid>
-
-                                                    <NumericUpDown Grid.Row="1"
-                                                                   Value="{Binding Left.Value}"
-                                                                   Minimum="{Binding Left.Min}"
-                                                                   Maximum="{Binding Left.Max}"
-                                                                   Increment="{Binding Left.Step}"
-                                                                   FormatString="0"
-                                                                   HorizontalAlignment="Stretch"/>
-                                                </Grid>
-
-                                                <!-- Right Control (Tilt) -->
-                                                <Grid Grid.Column="2" RowDefinitions="Auto, Auto">
-                                                     <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
-                                                        <TextBlock Grid.Column="0" Text="{Binding Right.Label}" Classes="label"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding Right.Value, StringFormat='{}{0} %'}" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
+                                                    <Grid Grid.Row="1" ColumnDefinitions="*, 60">
+                                                        <Slider Grid.Column="0" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}" TickFrequency="{Binding Step}" IsSnapToTickEnabled="True" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                                        <NumericUpDown Grid.Column="1" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}" Increment="{Binding Step}" FormatString="0" VerticalAlignment="Center"/>
                                                     </Grid>
-
-                                                    <NumericUpDown Grid.Row="1"
-                                                                   Value="{Binding Right.Value}"
-                                                                   Minimum="{Binding Right.Min}"
-                                                                   Maximum="{Binding Right.Max}"
-                                                                   Increment="{Binding Right.Step}"
-                                                                   FormatString="0"
-                                                                   HorizontalAlignment="Stretch"/>
                                                 </Grid>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.DataTemplates>
-                                </ItemsControl>
+                                            </DataTemplate>
+                                            <DataTemplate DataType="vm:ControlPairViewModel">
+                                                <Grid ColumnDefinitions="*, 10, *" Margin="0,2">
+                                                    <Grid Grid.Column="0" RowDefinitions="Auto, Auto">
+                                                        <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
+                                                            <TextBlock Grid.Column="0" Text="{Binding Left.Label}" Classes="label"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding Left.Value, StringFormat='{}{0} %'}" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
+                                                        </Grid>
+                                                        <NumericUpDown Grid.Row="1" Value="{Binding Left.Value}" Minimum="{Binding Left.Min}" Maximum="{Binding Left.Max}" Increment="{Binding Left.Step}" FormatString="0" HorizontalAlignment="Stretch"/>
+                                                    </Grid>
+                                                    <Grid Grid.Column="2" RowDefinitions="Auto, Auto">
+                                                         <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
+                                                            <TextBlock Grid.Column="0" Text="{Binding Right.Label}" Classes="label"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding Right.Value, StringFormat='{}{0} %'}" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
+                                                        </Grid>
+                                                        <NumericUpDown Grid.Row="1" Value="{Binding Right.Value}" Minimum="{Binding Right.Min}" Maximum="{Binding Right.Max}" Increment="{Binding Right.Step}" FormatString="0" HorizontalAlignment="Stretch"/>
+                                                    </Grid>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.DataTemplates>
+                                    </ItemsControl>
+
+                                    <!-- Zoom/Pan Preview Overlay -->
+                                    <ContentControl IsVisible="{Binding IsFrameSection}" Margin="0,10,0,0">
+                                        <views:ZoomPreview DataContext="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)}" />
+                                    </ContentControl>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

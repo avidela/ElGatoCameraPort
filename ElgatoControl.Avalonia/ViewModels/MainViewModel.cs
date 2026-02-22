@@ -36,11 +36,49 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _previewStatus = "Preview Off";
 
+    [ObservableProperty]
+    private bool _isDeviceCollapsed;
+
+    [RelayCommand]
+    private void ToggleDeviceCollapse() => IsDeviceCollapsed = !IsDeviceCollapsed;
+
+    [ObservableProperty]
+    private bool _showGrid = true;
+
+    [RelayCommand]
+    private void ToggleGrid() => ShowGrid = !ShowGrid;
+
+    [ObservableProperty]
+    private VideoFormat? _selectedFormat;
+
+    [ObservableProperty]
+    private ObservableCollection<VideoFormat> _supportedFormats = new();
+
+    [ObservableProperty]
+    private ControlViewModel? _panVm;
+
+    [ObservableProperty]
+    private ControlViewModel? _tiltVm;
+
+    [ObservableProperty]
+    private ControlViewModel? _zoomVm;
+
     public MainViewModel(ICameraDevice cameraDevice, IStreamService streamService)
     {
         _cameraDevice = cameraDevice;
         _streamService = streamService;
+        InitializeFormats();
         LoadLayout();
+    }
+
+    private void InitializeFormats()
+    {
+        var formats = _cameraDevice.GetSupportedFormats().ToList();
+        foreach (var f in formats) SupportedFormats.Add(f);
+        
+        // Default to 1080p60 if available, else first
+        SelectedFormat = formats.FirstOrDefault(f => f.Width == 1920 && f.Height == 1080 && f.Fps == 60) 
+                         ?? formats.FirstOrDefault();
     }
 
     public MainViewModel()
@@ -90,7 +128,62 @@ public partial class MainViewModel : ObservableObject, IDisposable
         {
             controlVm.UpdateValue(val);
         }
+
+        // Cache important ViewModels for ZoomPreview
+        if (control.Id == "pan") PanVm = controlVm;
+        if (control.Id == "tilt") TiltVm = controlVm;
+        if (control.Id == "zoom") ZoomVm = controlVm;
+
         return controlVm;
+    }
+
+    [RelayCommand]
+    private void Preset(string id)
+    {
+        // Preset values (standardized percentages)
+        var presets = new Dictionary<string, (int p, int t, int z)>
+        {
+            { "A", (0, 0, 100) },
+            { "B", (-50, 20, 200) },
+            { "C", (50, -20, 300) },
+            { "D", (0, 0, 400) }
+        };
+
+        if (presets.TryGetValue(id, out var p))
+        {
+            PanVm?.UpdateValue(p.p);
+            TiltVm?.UpdateValue(p.t);
+            ZoomVm?.UpdateValue(p.z);
+            
+            // Explicitly set properties on device
+            _cameraDevice.SetProperty(CameraProperty.Pan, p.p);
+            _cameraDevice.SetProperty(CameraProperty.Tilt, p.t);
+            _cameraDevice.SetProperty(CameraProperty.Zoom, p.z);
+        }
+    }
+
+    [RelayCommand]
+    private void ResetDefaults()
+    {
+        _cameraDevice.ResetToDefaults();
+        
+        // Refresh all ViewModels from the device
+        var currentValues = _cameraDevice.GetControlValues();
+        foreach (var section in Sections)
+        {
+            foreach (var item in section.Items)
+            {
+                if (item is ControlViewModel cvm)
+                {
+                    if (currentValues.TryGetValue(cvm.Id, out var val)) cvm.UpdateValue(val);
+                }
+                else if (item is ControlPairViewModel cpvm)
+                {
+                    if (currentValues.TryGetValue(cpvm.Left.Id, out var leftVal)) cpvm.Left.UpdateValue(leftVal);
+                    if (currentValues.TryGetValue(cpvm.Right.Id, out var rightVal)) cpvm.Right.UpdateValue(rightVal);
+                }
+            }
+        }
     }
 
     [RelayCommand]
@@ -106,6 +199,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    partial void OnSelectedFormatChanged(VideoFormat? value)
+    {
+        if (IsPreviewActive && value != null)
+        {
+            // Restart preview with new format
+            _ = Task.Run(async () =>
+            {
+                await StopPreviewAsync();
+                await StartPreviewAsync();
+            });
+        }
+    }
+
     private async Task StartPreviewAsync()
     {
         if (IsPreviewActive) return;
@@ -116,8 +222,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
             IsPreviewActive = true;
 
             string device = _cameraDevice.FindDevice() ?? "/dev/video0";
-            // Standard HD resolution for preview
-            var result = await _streamService.StartStreamAsync(device, 1280, 720, 30);
+            
+            int w = SelectedFormat?.Width ?? 1280;
+            int h = SelectedFormat?.Height ?? 720;
+            int fps = SelectedFormat?.Fps ?? 30;
+
+            var result = await _streamService.StartStreamAsync(device, w, h, fps);
 
             if (result.Stream == null)
             {

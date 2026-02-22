@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ElgatoControl.Avalonia.ViewModels"
+             xmlns:core="using:ElgatoControl.Core.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="ElgatoControl.Avalonia.Views.CameraPreviewView"
              x:DataType="vm:MainViewModel">
@@ -22,13 +23,34 @@
                 <Button Classes="primary" Command="{Binding TogglePreviewCommand}" Content="Start Preview" HorizontalAlignment="Center"/>
             </StackPanel>
 
-            <!-- Camera Feed -->
-            <Image Source="{Binding PreviewImage}"
-                   Stretch="Uniform"
-                   IsVisible="{Binding IsPreviewActive}"/>
+            <!-- Camera Feed and Grid Overlay -->
+            <Viewbox Stretch="Uniform" IsVisible="{Binding IsPreviewActive}">
+                <Grid Width="{Binding SelectedFormat.Width}" Height="{Binding SelectedFormat.Height}">
+                    <Image Source="{Binding PreviewImage}" Stretch="Fill"/>
+                    
+                    <!-- Rule of Thirds Grid -->
+                    <Grid IsVisible="{Binding ShowGrid}" Opacity="0.5" IsHitTestVisible="False">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-            <!-- Overlays -->
-            <Grid IsVisible="{Binding IsPreviewActive}">
+                        <!-- Vertical Lines -->
+                        <Border Grid.Column="0" BorderBrush="White" BorderThickness="0,0,1.5,0" Margin="0,0,-1,0"/>
+                        <Border Grid.Column="1" BorderBrush="White" BorderThickness="0,0,1.5,0" Margin="0,0,-1,0"/>
+
+                        <!-- Horizontal Lines -->
+                        <Border Grid.Row="0" BorderBrush="White" BorderThickness="0,0,0,1.5" Margin="0,0,0,-1"/>
+                        <Border Grid.Row="1" BorderBrush="White" BorderThickness="0,0,0,1.5" Margin="0,0,0,-1"/>
+                    </Grid>
+                </Grid>
+            </Viewbox>
                  <!-- Status Badge -->
                 <Border Background="#AA000000" VerticalAlignment="Top" HorizontalAlignment="Left" CornerRadius="4" Padding="8,4" Margin="15">
                     <StackPanel Orientation="Horizontal" Spacing="6">
@@ -37,15 +59,31 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Bottom Toolbar (Fake) -->
+                <!-- Bottom Toolbar -->
                 <Border VerticalAlignment="Bottom" Background="#DD101010" Padding="15">
                     <Grid ColumnDefinitions="Auto, *, Auto">
                         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="1080p60" Foreground="{DynamicResource TextDimBrush}" VerticalAlignment="Center"/>
+                            <ComboBox ItemsSource="{Binding SupportedFormats}" 
+                                      SelectedItem="{Binding SelectedFormat}"
+                                      Background="Transparent" BorderThickness="0" Padding="0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate DataType="core:VideoFormat">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="{Binding Height, StringFormat='{}{0}p'}" />
+                                            <TextBlock Text="{Binding Fps, StringFormat='{}{0}fps'}" Opacity="0.6" FontSize="11" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
 
-                         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
+                             <Button Command="{Binding ToggleGridCommand}" ToolTip.Tip="Toggle Grid Overlay" Background="Transparent" BorderThickness="0" Padding="4">
+                                 <PathIcon Data="M20,2H4C2.9,2,2,2.9,2,4v16c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z M8,20H4v-4h4V20z M8,14H4v-4h4V14z M8,8H4V4h4V8z M14,20h-4v-4h4V20z M14,14h-4v-4h4V14z M14,8h-4V4h4V8z M20,20h-4v-4h4V20z M20,14h-4v-4h4V14z M20,8h-4V4h4V8z" 
+                                           Width="16" Height="16" Opacity="{Binding ShowGrid, Converter={StaticResource BoolToOpacityConverter}}" />
+                             </Button>
                              <Button Content="Snapshot" Command="{Binding SnapshotCommand}" Classes="primary"/>
+                             <Button Content="Release" Command="{Binding TogglePreviewCommand}" Background="Transparent" BorderBrush="{DynamicResource BorderColor}" />
                         </StackPanel>
                     </Grid>
                 </Border>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Versioning;
@@ -62,7 +63,10 @@ public class WindowsCameraDevice : ICameraDevice
             new VideoFormat("MJPG", 1920, 1080, 60),
             new VideoFormat("MJPG", 1280, 720, 60),
             new VideoFormat("YUYV", 1920, 1080, 30)
-        };
+        }
+        .OrderByDescending(f => f.Width * f.Height)
+        .ThenByDescending(f => f.Fps)
+        .ToList();
     }
 
     public IEnumerable<ControlSectionData> GetLayout()

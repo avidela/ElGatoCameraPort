@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Linq;
 using ElgatoControl.Core.Models;
 using System.Runtime.Versioning; // Added for SupportedOSPlatform
 
@@ -226,7 +227,10 @@ public class LinuxCameraDevice : ICameraDevice
             }
         }
 
-        return formats;
+        return formats
+            .OrderByDescending(f => f.Width * f.Height)
+            .ThenByDescending(f => f.Fps)
+            .ToList();
     }
 
     public IEnumerable<ControlSectionData> GetLayout()
