@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using ElgatoControl.Api.Models;
+using ElgatoControl.Core.Models;
 
-namespace ElgatoControl.Api.Services;
+namespace ElgatoControl.Core.Services;
 
 public interface ICameraDevice
 {

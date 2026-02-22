@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Versioning;
-using ElgatoControl.Api.Models;
+using ElgatoControl.Core.Models;
 
-namespace ElgatoControl.Api.Services;
+namespace ElgatoControl.Core.Services;
 
 [SupportedOSPlatform("windows")]
 public class WindowsCameraDevice : ICameraDevice

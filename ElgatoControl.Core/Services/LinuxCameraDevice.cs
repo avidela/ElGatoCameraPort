@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-using ElgatoControl.Api.Models;
+using ElgatoControl.Core.Models;
 using System.Runtime.Versioning; // Added for SupportedOSPlatform
 
-namespace ElgatoControl.Api.Services;
+namespace ElgatoControl.Core.Services;
 
 [SupportedOSPlatform("linux")]
 public class LinuxCameraDevice : ICameraDevice

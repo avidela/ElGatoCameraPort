@@ -1,10 +1,9 @@
 # Dependencies
 /ElgatoControl.Web/node_modules
-/ElgatoControl.Api/bin/
-/ElgatoControl.Api/obj/
 
-# Electron.NET generated (at solution root)
-/obj/
+# .NET generated files
+[Bb]in/
+[Oo]bj/
 
 # Electron.NET generated
 /ElgatoControl.Api/ElectronHostHook/
