@@ -159,6 +159,7 @@ function App() {
           <DeviceCard
             selectedFormat={selectedFormat}
             onSave={saveToCamera}
+            onReset={resetDefaults}
           />
 
           {sections.map(section => (
@@ -178,7 +179,7 @@ function App() {
           ))}
         </div>
 
-        <ActionFooter status={status} onReset={resetDefaults} />
+        <ActionFooter status={status} />
       </aside>
 
       <CameraPreview
