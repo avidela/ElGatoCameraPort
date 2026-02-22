@@ -15,6 +15,8 @@ else
     builder.Services.AddSingleton<ICameraDevice, LinuxCameraDevice>();
 #pragma warning restore CA1416
 
+builder.Services.AddSingleton<IStreamService, StreamService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
