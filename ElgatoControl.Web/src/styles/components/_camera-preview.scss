@@ -1,0 +1,254 @@
+@use '../variables' as *;
+
+// .camera-preview BEM block — main content area with live stream + toolbar
+.camera-preview {
+    &__main {
+        flex: 1;
+        background-color: black;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    // Stream wrapper + grid overlay
+    &__stream-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__stream {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    &__grid-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        display: none;
+    }
+
+    &__placeholder {
+        text-align: center;
+
+        p {
+            color: #444;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    // Bottom toolbar
+    &__toolbar {
+        height: 60px;
+        background-color: $bg-header;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1rem;
+        border-top: 1px solid #2d2d2d;
+    }
+
+    &__toolbar-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        &--left {
+            flex: 1;
+        }
+
+        &--center {
+            flex: 1;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        &--right {
+            flex: 1;
+            justify-content: flex-end;
+        }
+    }
+
+    &__format-label {
+        color: $text-dim;
+        font-size: 0.8rem;
+    }
+
+    &__format-select {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 0.8rem;
+        -webkit-appearance: auto;
+        appearance: auto;
+        outline: none;
+        cursor: pointer;
+    }
+
+    // Icon buttons
+    &__icon-btn {
+        background: transparent;
+        border: none;
+        color: #aaa;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem;
+        border-radius: $radius-sm;
+        transition: all 0.2s;
+
+        svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        &:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        &--active {
+            color: $accent-blue;
+            background: rgba(0, 170, 255, 0.15);
+
+            &:hover {
+                background: rgba(0, 170, 255, 0.25);
+            }
+        }
+
+        &--screenshot svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        &--folder svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+}
+
+// Grid lines (shown when show-grid modifier on stream-wrapper)
+.show-grid .camera-preview__grid-overlay,
+.stream-wrapper.show-grid .grid-overlay {
+    display: block;
+}
+
+.v-line,
+.h-line {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.v-line {
+    width: 1px;
+    height: 100%;
+
+    &:nth-child(1) {
+        left: 33.33%;
+    }
+
+    &:nth-child(2) {
+        left: 66.66%;
+    }
+}
+
+.h-line {
+    height: 1px;
+    width: 100%;
+
+    &:nth-child(3) {
+        top: 33.33%;
+    }
+
+    &:nth-child(4) {
+        top: 66.66%;
+    }
+}
+
+// Backward-compatible aliases (used in CameraPreview.tsx)
+.main-content {
+    @extend .camera-preview__main;
+}
+
+.preview-container {
+    @extend .camera-preview__container;
+}
+
+.stream-wrapper {
+    @extend .camera-preview__stream-wrapper;
+}
+
+.live-stream {
+    @extend .camera-preview__stream;
+}
+
+.grid-overlay {
+    @extend .camera-preview__grid-overlay;
+}
+
+.stream-placeholder {
+    @extend .camera-preview__placeholder;
+}
+
+.preview-toolbar {
+    @extend .camera-preview__toolbar;
+}
+
+.toolbar-left {
+    @extend .camera-preview__toolbar-section;
+    @extend .camera-preview__toolbar-section--left;
+}
+
+.toolbar-center {
+    @extend .camera-preview__toolbar-section;
+    @extend .camera-preview__toolbar-section--center;
+}
+
+.toolbar-right {
+    @extend .camera-preview__toolbar-section;
+    @extend .camera-preview__toolbar-section--right;
+}
+
+.preview-format-label {
+    @extend .camera-preview__format-label;
+}
+
+.preview-format-select {
+    @extend .camera-preview__format-select;
+}
+
+.icon-btn {
+    @extend .camera-preview__icon-btn;
+}
+
+.toggle-btn.active {
+    @extend .camera-preview__icon-btn--active;
+}
+
+.screenshot-btn {
+    @extend .camera-preview__icon-btn--screenshot;
+}
+
+.folder-btn {
+    @extend .camera-preview__icon-btn--folder;
+}

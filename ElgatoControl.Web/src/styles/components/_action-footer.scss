@@ -1,0 +1,25 @@
+@use '../variables' as *;
+
+// .action-footer BEM block — status text at the bottom of the sidebar
+.action-footer {
+    &__wrapper {
+        padding: 0.6rem 0.9rem;
+        background: $bg-sidebar;
+        border-top: 1px solid $border-color;
+    }
+
+    &__status {
+        font-size: 0.7rem;
+        color: $text-dim;
+        text-align: center;
+    }
+}
+
+// Backward-compatible aliases
+.sidebar-footer {
+    @extend .action-footer__wrapper;
+}
+
+.status-bar {
+    @extend .action-footer__status;
+}

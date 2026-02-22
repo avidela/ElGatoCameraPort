@@ -1,0 +1,130 @@
+@use '../variables' as *;
+
+// .device-card BEM block
+.device-card {
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    // Action buttons group (Reset + Save)
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        border: none;
+        border-radius: $radius-sm;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 0.85;
+        }
+
+        &--save {
+            background: $accent-blue;
+            color: white;
+        }
+
+        &--reset {
+            background: #2e2e2e;
+            color: $text-label;
+            padding: 4px 6px;
+        }
+    }
+
+    // Device info rows (Input / Format)
+    &__info-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    &__label {
+        color: $text-dim;
+        font-size: 0.85rem;
+        width: 60px;
+        flex-shrink: 0;
+    }
+
+    &__value {
+        color: white;
+        font-size: 0.85rem;
+
+        &--select {
+            flex: 1;
+            background-color: $bg-control;
+            border: 1px solid $border-light;
+            color: white;
+            padding: 0.5rem;
+            border-radius: $radius-sm;
+            font-family: inherit;
+            font-size: 0.85rem;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+        }
+
+        &--format {
+            font-size: 0.75rem;
+            color: #999;
+        }
+    }
+}
+
+// Backward-compatible aliases
+.device-header {
+    @extend .device-card__header;
+}
+
+.device-header-actions {
+    @extend .device-card__actions;
+}
+
+.action-icon-btn {
+    @extend .device-card__btn;
+}
+
+.action-icon-btn.save-btn {
+    @extend .device-card__btn--save;
+}
+
+.action-icon-btn.reset-btn {
+    @extend .device-card__btn--reset;
+}
+
+.device-info {
+    @extend .device-card__info-row;
+}
+
+.info-label {
+    @extend .device-card__label;
+}
+
+.info-value {
+    @extend .device-card__value;
+}
+
+.info-value-select {
+    @extend .device-card__value--select;
+}
+
+.format-text {
+    @extend .device-card__value--format;
+}
+
+// Legacy save-icon-btn still used in DOM
+.save-icon-btn {
+    @extend .device-card__btn;
+    @extend .device-card__btn--save;
+}

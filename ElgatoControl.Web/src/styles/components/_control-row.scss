@@ -1,0 +1,95 @@
+@use '../variables' as *;
+
+// .control-row BEM block
+.control-row {
+    display: flex;
+    align-items: center;
+
+    &__label {
+        width: 76px;
+        min-width: 76px;
+        color: $text-label;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    &__interaction {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    // Pan/Tilt compact variant
+    &--compact {
+        .value-spinner {
+            min-width: 40px;
+        }
+    }
+}
+
+// Backward-compatible aliases
+.control-label {
+    @extend .control-row__label;
+}
+
+.control-interaction {
+    @extend .control-row__interaction;
+}
+
+.control-row.compact {
+    @extend .control-row--compact;
+}
+
+// Range slider
+input[type='range'] {
+    flex: 1;
+    min-width: 0;
+    -webkit-appearance: none;
+    height: 2px;
+    background: #444;
+    outline: none;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        background: white;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+}
+
+// .value-spinner BEM block (number input + unit)
+.value-spinner {
+    display: flex;
+    align-items: center;
+    background: #222;
+    border: 1px solid $border-light;
+    border-radius: $radius-sm;
+    padding: 2px 4px;
+    min-width: 48px;
+    max-width: 72px;
+
+    &__input,
+    input {
+        background: none;
+        border: none;
+        color: $accent-blue;
+        font-family: $font-mono;
+        font-size: 0.9rem;
+        width: 100%;
+        text-align: right;
+        outline: none;
+    }
+
+    &__unit,
+    .unit {
+        font-size: 0.75rem;
+        color: $text-dim;
+        margin-left: 4px;
+    }
+}

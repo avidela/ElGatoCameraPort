@@ -1,0 +1,92 @@
+@use '../variables' as *;
+
+// .section BEM block — shared by all collapsible sidebar cards
+.section {
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    margin-bottom: 8px;
+    overflow: hidden;
+
+    &--collapsed &__body {
+        display: none;
+    }
+
+    // Header row (clickable collapse trigger)
+    &__header {
+        padding: 0.55rem 0.9rem;
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+    }
+
+    &__arrow {
+        font-size: 0.6rem;
+        color: $text-dim;
+        width: 12px;
+    }
+
+    &__title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #ddd;
+        flex: 1;
+        letter-spacing: 0.01em;
+    }
+
+    // Inline section reset button (appears on hover)
+    &__reset {
+        background: none;
+        border: none;
+        color: $text-dim;
+        cursor: pointer;
+        font-size: 1.1rem;
+        visibility: hidden;
+
+        .section__header:hover & {
+            visibility: visible;
+        }
+    }
+
+    // Content area
+    &__body {
+        padding: 0.5rem 0.9rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        overflow: hidden;
+    }
+}
+
+// Backward-compatible aliases used in TSX classNames
+.section-header {
+    @extend .section__header;
+}
+
+.section-title {
+    @extend .section__title;
+}
+
+.section-body {
+    @extend .section__body;
+}
+
+.section.collapsed .section-body {
+    display: none;
+}
+
+.arrow {
+    @extend .section__arrow;
+}
+
+.reset-inline {
+    @extend .section__reset;
+}

@@ -1,0 +1,42 @@
+@use 'variables' as *;
+
+// Top-level app shell
+.elgato-layout {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+// Sidebar
+.sidebar {
+    width: $sidebar-width;
+    min-width: $sidebar-width;
+    background-color: $bg-sidebar;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    border-right: 1px solid $border-color;
+
+    &__content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 8px 0;
+        background-color: $bg-sidebar;
+        min-height: 0;
+    }
+
+    &__footer {
+        padding: 0.6rem 0.9rem;
+        background: $bg-sidebar;
+        border-top: 1px solid $border-color;
+    }
+}
+
+// Alias: .sidebar-content, .sidebar-footer kept for component compatibility
+.sidebar-content {
+    @extend .sidebar__content;
+}
+
+.sidebar-footer {
+    @extend .sidebar__footer;
+}

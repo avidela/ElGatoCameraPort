@@ -1,0 +1,57 @@
+@use 'variables' as *;
+
+// CSS custom properties (consumed by legacy selectors / inline styles)
+:root {
+    --bg-main: #{$bg-main};
+    --bg-sidebar: #{$bg-sidebar};
+    --bg-header: #{$bg-header};
+    --bg-control: #{$bg-control};
+    --accent-blue: #{$accent-blue};
+    --text-main: #{$text-main};
+    --text-dim: #{$text-dim};
+    --border-color: #{$border-color};
+    --font-family: #{$font-family};
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: $bg-main;
+    color: $text-main;
+    font-family: $font-family;
+}
+
+#root {
+    width: 100vw;
+    height: 100vh;
+}
+
+// Hide number-input spin buttons globally
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+// Utility classes
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.primary-btn {
+    padding: 0.8rem 2rem;
+    background-color: $accent-blue;
+    color: white;
+    border: none;
+    border-radius: $radius-sm;
+    font-weight: 600;
+    cursor: pointer;
+}

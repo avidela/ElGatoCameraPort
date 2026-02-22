@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
-import './App.css';
+import { useState } from 'react';
+import './styles/main.scss';
 import ControlSection from './components/ControlSection';
 import CameraPreview from './components/CameraPreview';
 import DeviceCard from './components/DeviceCard';
 import ActionFooter from './components/ActionFooter';
 import { useCameraLayout } from './hooks/useCameraLayout';
 import { useCameraPreview } from './hooks/useCameraPreview';
-import type { VideoFormat } from './types';
 
 function App() {
   const [isPreviewOn, setIsPreviewOn] = useState(false); // Default OFF per user request

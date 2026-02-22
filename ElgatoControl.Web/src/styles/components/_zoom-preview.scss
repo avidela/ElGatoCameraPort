@@ -1,0 +1,77 @@
+@use '../variables' as *;
+
+// .zoom-preview BEM block — draggable sensor area + preset buttons
+.zoom-preview {
+    &__container {
+        padding-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    &__sensor {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background-color: $bg-main;
+        border-radius: $radius-sm;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #222;
+        cursor: grab;
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+
+    &__box {
+        position: absolute;
+        box-sizing: border-box;
+    }
+
+    &__presets {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    &__preset-btn {
+        flex: 1;
+        background: $bg-control;
+        border: 1px solid $border-light;
+        color: white;
+        padding: 0.6rem;
+        border-radius: $radius-sm;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+
+        &:active {
+            background: $accent-blue;
+            border-color: $accent-blue;
+        }
+    }
+}
+
+// Backward-compatible aliases
+.zoom-preview-container {
+    @extend .zoom-preview__container;
+}
+
+.sensor-area {
+    @extend .zoom-preview__sensor;
+}
+
+.presets-row {
+    @extend .zoom-preview__presets;
+}
+
+.preset-btn {
+    @extend .zoom-preview__preset-btn;
+}

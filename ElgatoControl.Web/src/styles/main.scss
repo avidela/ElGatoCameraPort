@@ -1,0 +1,10 @@
+// Entry point — import order matters (variables first, then base, layout, components)
+@use 'variables';
+@use 'base';
+@use 'layout';
+@use 'components/section';
+@use 'components/device-card';
+@use 'components/control-row';
+@use 'components/zoom-preview';
+@use 'components/camera-preview';
+@use 'components/action-footer';
