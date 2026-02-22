@@ -3,14 +3,14 @@
   "splashscreen": {
     "imageFile": ""
   },
-  "name": "Elgato Camera Control",
-  "author": "",
+  "name": "elgato-camera-control",
+  "author": "ElgatoCameraPort <noreply@elgatocameraport.io>",
   "singleInstance": true,
   "environment": "Production",
   "build": {
     "appId": "io.elgatocameraport.app",
     "productName": "Elgato Camera Control",
-    "copyright": "Copyright © 2025",
+    "copyright": "Copyright © 2026",
     "buildVersion": "1.0.0",
     "compression": "maximum",
     "directories": {
@@ -28,7 +28,8 @@
       "depends": [
         "ffmpeg",
         "v4l-utils"
-      ]
+      ],
+      "maintainer": "ElgatoCameraPort <noreply@elgatocameraport.io>"
     },
     "extraResources": [
       {

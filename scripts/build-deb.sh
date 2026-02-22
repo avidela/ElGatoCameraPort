@@ -20,5 +20,5 @@ cd "$API"
 DOTNET_ROLL_FORWARD=LatestMajor electronize build /target linux /electron-arch x64
 
 echo ""
-echo "==> Done! Output in: $ROOT/bin/Desktop"
-ls "$ROOT/bin/Desktop"/*.deb 2>/dev/null || echo "(no .deb found — check electron-builder output above)"
+echo "==> Done! .deb output:"
+ls "$API/bin/Desktop"/*.deb 2>/dev/null || echo "(no .deb found — check electron-builder output above)"
