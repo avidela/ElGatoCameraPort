@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using ElgatoControl.Api.Models;
 
 namespace ElgatoControl.Api.Services;
 
@@ -100,6 +102,55 @@ public class LinuxCameraController : ICameraController
         RunCommand("v4l2-ctl", $"-d {device} --set-ctrl=zoom_absolute=100");
         RunCommand("v4l2-ctl", $"-d {device} --set-ctrl=pan_absolute=0");
         RunCommand("v4l2-ctl", $"-d {device} --set-ctrl=tilt_absolute=0");
+    }
+
+    public IEnumerable<VideoFormat> GetSupportedFormats()
+    {
+        var formats = new List<VideoFormat>();
+        string? device = FindDevice();
+        if (device == null) return formats;
+
+        string output = RunCommand("v4l2-ctl", $"-d {device} --list-formats-ext");
+        if (output.StartsWith("Error")) return formats;
+
+        string currentCodec = "";
+        int currentWidth = 0, currentHeight = 0;
+
+        foreach (var line in output.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmed = line.Trim();
+            if (trimmed.StartsWith("[") && trimmed.Contains(": '"))
+            {
+                // Parse codec: [1]: 'MJPG' (Motion-JPEG, compressed)
+                int start = trimmed.IndexOf('\'') + 1;
+                int end = trimmed.IndexOf('\'', start);
+                if (start > 0 && end > start)
+                {
+                    currentCodec = trimmed.Substring(start, end - start);
+                }
+            }
+            else if (trimmed.StartsWith("Size: Discrete"))
+            {
+                // Parse size: Size: Discrete 1920x1080
+                var parts = trimmed.Replace("Size: Discrete ", "").Split('x');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int w) && int.TryParse(parts[1], out int h))
+                {
+                    currentWidth = w;
+                    currentHeight = h;
+                }
+            }
+            else if (trimmed.StartsWith("Interval: Discrete"))
+            {
+                // Parse interval: Interval: Discrete 0.017s (60.000 fps)
+                var match = Regex.Match(trimmed, @"\((\d+\.?\d*)\s*fps\)");
+                if (match.Success && double.TryParse(match.Groups[1].Value, out double fps))
+                {
+                    formats.Add(new VideoFormat(currentCodec, currentWidth, currentHeight, (int)Math.Round(fps)));
+                }
+            }
+        }
+
+        return formats;
     }
 
     private string MapProperty(CameraProperty property)

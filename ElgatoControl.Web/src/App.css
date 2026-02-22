@@ -53,37 +53,30 @@ body {
 
 .nav-tabs {
   display: flex;
-  gap: 1.5rem;
-  height: 100%;
+  gap: 0.2rem;
 }
 
 .tab {
-  background: none;
+  background: transparent;
   border: none;
-  color: var(--text-dim);
-  font-size: 0.85rem;
+  color: #888;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  padding: 0.5rem 1rem;
   cursor: pointer;
-  position: relative;
-  height: 100%;
-  padding: 0 0.5rem;
-  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .tab.active {
-  color: var(--text-main);
+  color: white;
+  border-bottom: 2px solid var(--accent-blue);
 }
 
-.tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: var(--accent-blue);
+.tab:hover:not(.active) {
+  color: #ccc;
 }
 
 .save-icon-btn {
@@ -162,6 +155,53 @@ body {
   visibility: visible;
 }
 
+/* Zoom/Frame Preview Visualization */
+.zoom-preview-container {
+  padding-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sensor-area {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background-color: #0b0b0b;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #222;
+}
+
+.presets-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.preset-btn {
+  flex: 1;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: white;
+  padding: 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-btn:hover {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.preset-btn:active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
 .section-body {
   padding: 1.2rem 1rem;
   display: flex;
@@ -177,33 +217,55 @@ body {
 
 /* Device Info */
 .info-label {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  margin-bottom: 0.4rem;
+  color: #888;
+  font-size: 0.85rem;
+  width: 60px;
 }
 
 .info-value {
-  font-size: 0.9rem;
-  color: var(--text-main);
-  background: #252525;
-  padding: 0.6rem;
-  border-radius: 4px;
+  color: white;
+  font-size: 0.85rem;
+}
+
+.info-value-select {
+  flex: 1;
+  background-color: #1e1e1e;
   border: 1px solid #333;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+.format-text {
+  font-size: 0.75rem;
+  color: #999;
 }
 
 /* Control Rows */
 .control-row {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.control-row.compact {
+  margin-bottom: 0.5rem;
 }
 
 .control-label {
+  width: 100px;
+  color: #999;
   font-size: 0.85rem;
-  color: #aaa;
+  flex-shrink: 0;
 }
 
 .control-interaction {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -356,28 +418,96 @@ input::-webkit-inner-spin-button {
   margin-bottom: 1.5rem;
 }
 
-/* Toolbar */
+/* Bottom Toolbar Restyle */
 .preview-toolbar {
-  height: 50px;
-  background-color: var(--bg-header);
-  border-top: 1px solid var(--border-color);
+  height: 60px;
+  background-color: #1a1a1a;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  border-top: 1px solid #2d2d2d;
+}
+
+.toolbar-left,
+.toolbar-center,
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toolbar-left {
+  flex: 1;
+}
+
+.toolbar-center {
+  flex: 1;
   justify-content: center;
   gap: 1.5rem;
 }
 
-.toolbar-btn {
-  background: none;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  transition: color 0.2s;
+.toolbar-right {
+  flex: 1;
+  justify-content: flex-end;
 }
 
-.toolbar-btn:hover,
-.toolbar-btn.active {
+.preview-format-label {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.preview-format-select {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 0.8rem;
+  -webkit-appearance: auto;
+  appearance: auto;
+  outline: none;
+  cursor: pointer;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.toggle-btn.active {
   color: var(--accent-blue);
+  background: rgba(0, 170, 255, 0.15);
+}
+
+.toggle-btn.active:hover {
+  background: rgba(0, 170, 255, 0.25);
+}
+
+.screenshot-btn svg {
+  width: 26px;
+  height: 26px;
+}
+
+.folder-btn svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* Footer & Buttons */

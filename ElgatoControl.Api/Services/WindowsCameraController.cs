@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Versioning;
+using ElgatoControl.Api.Models;
 
 namespace ElgatoControl.Api.Services;
 
@@ -48,6 +50,17 @@ public class WindowsCameraController : ICameraController
     public void ResetToDefaults()
     {
         // Placeholder for Windows reset logic
+    }
+
+    public IEnumerable<VideoFormat> GetSupportedFormats()
+    {
+        // Placeholder implementation for Windows
+        return new List<VideoFormat> 
+        { 
+            new VideoFormat("MJPG", 1920, 1080, 60),
+            new VideoFormat("MJPG", 1280, 720, 60),
+            new VideoFormat("YUYV", 1920, 1080, 30)
+        };
     }
 
     private bool SetCameraControlProperty(IBaseFilter device, CameraProperty property, int value)
@@ -104,7 +117,7 @@ public class WindowsCameraController : ICameraController
         while (enumMoniker.Next(1, monikers, fetched) == 0)
         {
             Guid iidPropertyBag = IID_IPropertyBag;
-            monikers[0].BindToStorage(null, null, ref iidPropertyBag, out object bagObj);
+            monikers[0].BindToStorage(null!, null, ref iidPropertyBag, out object bagObj);
             IPropertyBag bag = (IPropertyBag)bagObj;
             bag.Read("FriendlyName", out object val, null!);
             string friendlyName = (string)val;
@@ -112,7 +125,7 @@ public class WindowsCameraController : ICameraController
             if (friendlyName.Contains("Elgato Facecam", StringComparison.OrdinalIgnoreCase))
             {
                 Guid iidBaseFilter = IID_IBaseFilter;
-                monikers[0].BindToObject(null, null, ref iidBaseFilter, out object filterObj);
+                monikers[0].BindToObject(null!, null, ref iidBaseFilter, out object filterObj);
                 return (IBaseFilter)filterObj;
             }
             Marshal.ReleaseComObject(monikers[0]);

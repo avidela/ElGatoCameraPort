@@ -1,6 +1,7 @@
 import React from 'react';
 import ControlRow from './ControlRow';
 import type { CameraControl } from '../types';
+import ZoomPreview from './ZoomPreview';
 
 interface ControlSectionProps {
     title: string;
@@ -11,13 +12,15 @@ interface ControlSectionProps {
     onToggle: (id: string) => void;
     onChange: (id: string, value: number) => void;
     onCommit: (id: string, value: number) => void;
+    onResetSection: (sectionId: string) => void;
+    onPresetClick?: (presetId: string) => void;
 }
 
 const ControlSection: React.FC<ControlSectionProps> = ({
-    title, id, controls, values, collapsed, onToggle, onChange, onCommit
+    title, id, controls, values, collapsed, onToggle, onChange, onCommit, onResetSection, onPresetClick
 }) => {
     return (
-        <div className={`section ${collapsed ? 'collapsed' : ''}`}>
+        <div className={`section ${collapsed ? 'collapsed' : ''} `}>
             <div className="section-header" onClick={() => onToggle(id)}>
                 <span className="arrow">{collapsed ? '▶' : '▼'}</span>
                 <span className="section-title">{title}</span>
@@ -26,13 +29,21 @@ const ControlSection: React.FC<ControlSectionProps> = ({
                     title="Reset Section"
                     onClick={(e) => {
                         e.stopPropagation();
-                        // Reset logic would go here if needed per section
+                        onResetSection(id);
                     }}
                 >
                     ↺
                 </button>
             </div>
             <div className="section-body">
+                {id === 'frame' && onPresetClick && (
+                    <ZoomPreview
+                        zoom={values['zoom']}
+                        pan={values['pan']}
+                        tilt={values['tilt']}
+                        onPresetClick={onPresetClick}
+                    />
+                )}
                 {controls.map(control => (
                     <ControlRow
                         key={control.id}

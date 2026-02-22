@@ -13,3 +13,10 @@ export interface ControlSectionData {
     id: string;
     controls: CameraControl[];
 }
+
+export interface VideoFormat {
+    codec: string;
+    width: number;
+    height: number;
+    fps: number;
+}
