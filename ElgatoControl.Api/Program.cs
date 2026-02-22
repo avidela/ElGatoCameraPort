@@ -32,6 +32,7 @@ app.UseStaticFiles();
 app.MapCameraEndpoints();
 app.MapPresetEndpoints();
 app.MapStreamEndpoints();
+app.MapScreenshotEndpoints();
 
 // Enforce Preset A on boot
 using (var scope = app.Services.CreateScope())

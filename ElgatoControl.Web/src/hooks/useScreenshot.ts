@@ -19,8 +19,14 @@ export function useScreenshot(onStatus: (msg: string) => void) {
         }
     }, [onStatus]);
 
-    const openScreenshotFolder = useCallback(() => {
-        onStatus('Check your browser Downloads folder');
+    const openScreenshotFolder = useCallback(async () => {
+        try {
+            const res = await fetch('http://localhost:5000/api/screenshots/open-folder');
+            const data = await res.json();
+            onStatus(data.success ? `Opened ${data.folder}` : 'Could not open folder');
+        } catch {
+            onStatus('Could not open folder');
+        }
     }, [onStatus]);
 
     return { handleScreenshot, openScreenshotFolder };
