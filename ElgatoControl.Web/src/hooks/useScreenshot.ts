@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { API_BASE_URL } from '../config';
 
 export function useScreenshot(onStatus: (msg: string) => void) {
     const handleScreenshot = useCallback(() => {
@@ -21,7 +22,7 @@ export function useScreenshot(onStatus: (msg: string) => void) {
 
     const openScreenshotFolder = useCallback(async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/screenshots/open-folder');
+            const res = await fetch(`${API_BASE_URL}/api/screenshots/open-folder`);
             const data = await res.json();
             onStatus(data.success ? `Opened ${data.folder}` : 'Could not open folder');
         } catch {

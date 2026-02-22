@@ -69,6 +69,7 @@ if (HybridSupport.IsElectronActive)
         Width = 1400,
         Height = 900,
         Title = "Elgato Camera Control",
+        Icon = System.IO.Path.Combine(builder.Environment.ContentRootPath, "app_icon.png"),
         Show = false, // wait until ready to avoid blank flash
         WebPreferences = new WebPreferences
         {
@@ -77,7 +78,11 @@ if (HybridSupport.IsElectronActive)
         }
     });
 
-    window.OnReadyToShow += () => window.Show();
+    window.OnReadyToShow += () => 
+    {
+        window.Show();
+        window.WebContents.OpenDevTools();
+    };
     window.OnClosed += () => Electron.App.Quit();
 
     await app.WaitForShutdownAsync();
@@ -85,5 +90,5 @@ if (HybridSupport.IsElectronActive)
 else
 {
     // Normal browser/API mode when not running via Electron
-    app.Run("http://localhost:5000");
+    app.Run("http://127.0.0.1:0");
 }
