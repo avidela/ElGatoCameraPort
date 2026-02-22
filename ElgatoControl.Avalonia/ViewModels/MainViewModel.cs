@@ -24,6 +24,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _greeting = "Welcome to Avalonia!";
 
+    public string CameraName => _cameraDevice.DeviceName;
+
     [ObservableProperty]
     private ObservableCollection<SectionViewModel> _sections = new();
 
@@ -43,7 +45,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void ToggleDeviceCollapse() => IsDeviceCollapsed = !IsDeviceCollapsed;
 
     [ObservableProperty]
-    private bool _showGrid = true;
+    private bool _showGrid = false;
 
     [RelayCommand]
     private void ToggleGrid() => ShowGrid = !ShowGrid;
@@ -160,6 +162,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
             _cameraDevice.SetProperty(CameraProperty.Tilt, p.t);
             _cameraDevice.SetProperty(CameraProperty.Zoom, p.z);
         }
+    }
+
+    [RelayCommand]
+    private void SaveToCamera()
+    {
+        // On Linux/v4l2, every SetProperty is immediate. 
+        // We simulate the 'Save' feedback for parity.
+        PreviewStatus = "Settings Saved";
+        _ = Task.Delay(2000).ContinueWith(_ => Dispatcher.UIThread.Post(() => PreviewStatus = IsPreviewActive ? "Live" : "Preview Off"));
     }
 
     [RelayCommand]

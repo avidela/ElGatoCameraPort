@@ -12,6 +12,8 @@ public class LinuxCameraDevice : ICameraDevice
 {
     private const string TargetHardwareId = "0fd9:0093"; // Elgato Facecam MK.2
 
+    public string DeviceName => "Elgato Facecam MK.2";
+
     public string? FindDevice()
     {
         // Primary: Try v4l2-ctl

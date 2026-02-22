@@ -51,6 +51,9 @@
                     </Grid>
                 </Grid>
             </Viewbox>
+
+            <!-- Overlays -->
+            <Grid IsVisible="{Binding IsPreviewActive}">
                  <!-- Status Badge -->
                 <Border Background="#AA000000" VerticalAlignment="Top" HorizontalAlignment="Left" CornerRadius="4" Padding="8,4" Margin="15">
                     <StackPanel Orientation="Horizontal" Spacing="6">
