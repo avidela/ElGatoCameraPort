@@ -8,20 +8,21 @@ interface CameraPreviewProps {
     onTogglePreview: () => void;
     onToggleGrid: () => void;
     onScreenshot: () => void;
+    onOpenFolder: () => void;
     formats: VideoFormat[];
     selectedFormat: VideoFormat | null;
     onFormatChange: (format: VideoFormat) => void;
 }
 
 const CameraPreview: React.FC<CameraPreviewProps> = ({
-    streamUrl, isPreviewOn, showGrid, onTogglePreview, onToggleGrid, onScreenshot, formats, selectedFormat, onFormatChange
+    streamUrl, isPreviewOn, showGrid, onTogglePreview, onToggleGrid, onScreenshot, onOpenFolder, formats, selectedFormat, onFormatChange
 }) => {
     return (
         <main className="main-content">
             <div className="preview-container">
                 {isPreviewOn && streamUrl ? (
                     <div className={`stream-wrapper ${showGrid ? 'show-grid' : ''}`}>
-                        <img src={streamUrl} alt="Live Preview" className="live-stream" />
+                        <img crossOrigin="anonymous" src={streamUrl} alt="Live Preview" className="live-stream" />
                         <div className="grid-overlay">
                             <div className="v-line"></div><div className="v-line"></div>
                             <div className="h-line"></div><div className="h-line"></div>
@@ -60,7 +61,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
                     <button className="icon-btn screenshot-btn" onClick={onScreenshot} title="Capture Screenshot">
                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" /></svg>
                     </button>
-                    <button className="icon-btn folder-btn" title="Open Screenshot Folder">
+                    <button className="icon-btn folder-btn" onClick={onOpenFolder} title="Open Screenshot Folder">
                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" /></svg>
                     </button>
                 </div>

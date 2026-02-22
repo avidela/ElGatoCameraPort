@@ -4,61 +4,42 @@ import ControlSection from './components/ControlSection';
 import CameraPreview from './components/CameraPreview';
 import type { ControlSectionData, VideoFormat } from './types';
 
-const sections: ControlSectionData[] = [
-  {
-    title: 'Frame',
-    id: 'frame',
-    controls: [
-      { id: 'zoom', label: 'Zoom / FOV', min: 100, max: 400, step: 1, defaultValue: 100, unit: '%' },
-      { id: 'pan', label: 'Pan', min: -2592000, max: 2592000, step: 3600, defaultValue: 0 },
-      { id: 'tilt', label: 'Tilt', min: -1458000, max: 1458000, step: 3600, defaultValue: 0 },
-    ]
-  },
-  {
-    title: 'Picture',
-    id: 'picture',
-    controls: [
-      { id: 'contrast', label: 'Contrast', min: 0, max: 100, step: 1, defaultValue: 80, unit: '%' },
-      { id: 'saturation', label: 'Saturation', min: 0, max: 127, step: 1, defaultValue: 64, unit: '%' },
-      { id: 'sharpness', label: 'Sharpness', min: 0, max: 255, step: 1, defaultValue: 128 },
-    ]
-  },
-  {
-    title: 'Exposure',
-    id: 'exposure',
-    controls: [
-      { id: 'exposure', label: 'Shutter Speed', min: 1, max: 2500, step: 1, defaultValue: 156 },
-      { id: 'gain', label: 'ISO (Gain)', min: 0, max: 88, step: 1, defaultValue: 0 },
-      { id: 'white_balance', label: 'White Balance', min: 2800, max: 7500, step: 10, defaultValue: 5000, unit: 'K' },
-      { id: 'brightness', label: 'Brightness', min: -9, max: 9, step: 1, defaultValue: 0 },
-    ]
-  }
-];
-
-const allControls = sections.flatMap(s => s.controls);
-
 function App() {
-  const [isPreviewOn, setIsPreviewOn] = useState(true);
+  const [isPreviewOn, setIsPreviewOn] = useState(false); // Default OFF per user request
   const [showGrid, setShowGrid] = useState(true);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
-    frame: false, picture: false, exposure: false
-  });
+  const [sections, setSections] = useState<ControlSectionData[]>([]);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [streamUrl, setStreamUrl] = useState('');
   const [status, setStatus] = useState('Ready');
+  const [activePreset, setActivePreset] = useState<string | null>(null);
 
   // Format state
   const [formats, setFormats] = useState<VideoFormat[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<VideoFormat | null>(null);
-  const [values, setValues] = useState<Record<string, number>>(
-    Object.fromEntries(allControls.map(c => [c.id, c.defaultValue]))
-  );
+  const [values, setValues] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    // Fetch initial controls and formats
-    fetch('http://localhost:5000/api/camera/controls')
+    // Fetch Dynamic Backend Layout
+    fetch('http://localhost:5000/api/camera/layout')
       .then(res => res.json())
-      .then(() => {
-        // Here we'd map raw active values, ignoring for this demo
+      .then(data => {
+        if (data.success && data.layout) {
+          setSections(data.layout);
+
+          // Initialize default collapse states and values
+          const newCollapsed: Record<string, boolean> = {};
+          const newValues: Record<string, number> = {};
+
+          data.layout.forEach((sec: ControlSectionData) => {
+            newCollapsed[sec.id] = false;
+            sec.controls.forEach(c => {
+              newValues[c.id] = c.defaultValue;
+            });
+          });
+
+          setCollapsed(newCollapsed);
+          setValues(newValues);
+        }
       })
       .catch(console.error);
 
@@ -113,9 +94,21 @@ function App() {
   const saveToCamera = async () => {
     try {
       setStatus('Saving to hardware...');
+
+      if (activePreset) {
+        await fetch(`http://localhost:5000/api/camera/preset/save/${activePreset}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ zoom: values.zoom, pan: values.pan, tilt: values.tilt })
+        });
+      }
+
       const response = await fetch(`http://localhost:5000/api/camera/save`, { method: 'POST' });
       const data = await response.json();
-      if (data.success) setStatus('Settings stored.');
+
+      if (data.success) {
+        setStatus(activePreset ? `Saved to Camera & Preset ${activePreset}` : 'Saved to Camera successfully');
+      }
     } catch (err) {
       setStatus('Failed to save settings');
     }
@@ -127,7 +120,14 @@ function App() {
       const response = await fetch(`http://localhost:5000/api/camera/reset`, { method: 'POST' });
       const data = await response.json();
       if (data.success) {
-        setValues(Object.fromEntries(allControls.map(c => [c.id, c.defaultValue])));
+        // Reset local state based on active dynamic layout
+        const refreshedValues = { ...values };
+        sections.forEach(sec => {
+          sec.controls.forEach(c => {
+            refreshedValues[c.id] = c.defaultValue;
+          });
+        });
+        setValues(refreshedValues);
         setStatus('Restored defaults');
       }
     } catch (err) {
@@ -148,25 +148,34 @@ function App() {
     setStatus(`Reset ${section.title} section`);
   };
 
-  const handlePreset = (presetId: string) => {
-    const presetKey = `preset_${presetId}`;
-    const saved = localStorage.getItem(presetKey);
+  const handlePreset = async (presetId: string) => {
+    setActivePreset(presetId);
+    setStatus(`Loading Preset ${presetId}...`);
 
-    // For now, if no preset exists, we "save" current state to it
-    // In a real app we might have a dedicated save button, but let's toggle: save if same, load if different?
-    // User asked to "build this" - let's make it load if something is there, or save if empty for demo.
-    if (!saved) {
-      const state = JSON.stringify({ zoom: values.zoom, pan: values.pan, tilt: values.tilt });
-      localStorage.setItem(presetKey, state);
-      setStatus(`Saved Preset ${presetId}`);
-    } else {
-      const { zoom, pan, tilt } = JSON.parse(saved);
-      const newValues = { ...values, zoom, pan, tilt };
-      setValues(newValues);
-      updateCamera('zoom', zoom);
-      updateCamera('pan', pan);
-      updateCamera('tilt', tilt);
-      setStatus(`Loaded Preset ${presetId}`);
+    try {
+      const response = await fetch(`http://localhost:5000/api/camera/preset/load/${presetId}`);
+      const data = await response.json();
+
+      if (data.success && data.state) {
+        const { zoom, pan, tilt } = data.state;
+        const newValues = { ...values, zoom, pan, tilt };
+        setValues(newValues);
+        setStatus(`Loaded Preset ${presetId}`);
+      } else {
+        // Default empty preset state
+        const defaultZoom = 100;
+        const defaultPan = 0;
+        const defaultTilt = 0;
+
+        const newValues = { ...values, zoom: defaultZoom, pan: defaultPan, tilt: defaultTilt };
+        setValues(newValues);
+        updateCamera('zoom', defaultZoom);
+        updateCamera('pan', defaultPan);
+        updateCamera('tilt', defaultTilt);
+        setStatus(`Loaded Default Preset ${presetId} (Unsaved)`);
+      }
+    } catch (err) {
+      setStatus(`Failed to load preset ${presetId}`);
     }
   };
 
@@ -184,8 +193,14 @@ function App() {
       link.download = `Facecam_Capture_${new Date().toISOString()}.jpg`;
       link.href = canvas.toDataURL('image/jpeg', 0.95);
       link.click();
-      setStatus('Screenshot captured');
+      setStatus('Screenshot captured and downloaded');
     }
+  };
+
+  const openScreenshotFolder = () => {
+    // In a real desktop app (Electron/Tauri) we would trigger an OS shell command here.
+    // Since this is a browser wrapper, we will notify the user where downloads went.
+    setStatus('Check your browser Downloads folder');
   };
 
   const handleChange = (id: string, value: number) => {
@@ -198,26 +213,16 @@ function App() {
 
   return (
     <div className="elgato-layout pro-theme">
-      {/* Sidebar Panel */}
+      {/* Sidebar Panel - now a flex container for cards */}
       <aside className="sidebar">
-        <div className="sidebar-header">
-          <div className="nav-tabs">
-            <button className="tab active"><svg viewBox="0 0 24 24" width="14" fill="currentColor"><path d="M12 11c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 2h-1.42l-1.58-5.54A2.003 2.003 0 0013.06 6h-2.12c-.89 0-1.68.59-1.9 1.46L7.42 13H2v2h6.58l.74-2.6L11 17l-1 5h2l1.45-7.25L15 17h5v-2z" /></svg> Camera</button>
-            <button className="tab"><svg viewBox="0 0 24 24" width="14" fill="currentColor"><path d="M22 6H2v12h20V6zm-2 10H4V8h16v8zm-8.8-5.32L9.5 8.5H7.72l2.36 2.82L7.54 14h1.74l1.92-2.32L13.12 14h1.76l-2.5-3zM15.5 14v-1.5h3V14h-3z" /></svg> Effects</button>
-            <button className="tab"><svg viewBox="0 0 24 24" width="14" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" /></svg> Prompter</button>
-          </div>
-          <div className="header-actions">
-            <button className="save-icon-btn" title="Save to Memory" onClick={saveToCamera}>
-              <svg viewBox="0 0 24 24" fill="currentColor" width="16"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" /></svg>
-              SAVE
-            </button>
-          </div>
-        </div>
-
         <div className="sidebar-content">
           <div className="section static-section">
-            <div className="section-header no-collapse">
+            <div className="section-header no-collapse device-header">
               <span className="section-title">Device</span>
+              <button className="save-icon-btn" title="Save to Memory" onClick={saveToCamera}>
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" /></svg>
+                SAVE
+              </button>
             </div>
             <div className="section-body">
               <div className="device-info">
@@ -265,6 +270,7 @@ function App() {
         onTogglePreview={() => setIsPreviewOn(!isPreviewOn)}
         onToggleGrid={() => setShowGrid(!showGrid)}
         onScreenshot={handleScreenshot}
+        onOpenFolder={openScreenshotFolder}
         formats={formats}
         selectedFormat={selectedFormat}
         onFormatChange={(fmt) => {

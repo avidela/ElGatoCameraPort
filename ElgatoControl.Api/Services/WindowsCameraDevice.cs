@@ -8,7 +8,7 @@ using ElgatoControl.Api.Models;
 namespace ElgatoControl.Api.Services;
 
 [SupportedOSPlatform("windows")]
-public class WindowsCameraController : ICameraController
+public class WindowsCameraDevice : ICameraDevice
 {
     private const string TargetDeviceName = "@device_pnp_\\\\?\\usb#vid_0fd9&pid_0093&mi_00#b&17cf1500&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global";
 
@@ -60,6 +60,32 @@ public class WindowsCameraController : ICameraController
             new VideoFormat("MJPG", 1920, 1080, 60),
             new VideoFormat("MJPG", 1280, 720, 60),
             new VideoFormat("YUYV", 1920, 1080, 30)
+        };
+    }
+
+    public IEnumerable<ControlSectionData> GetLayout()
+    {
+        return new List<ControlSectionData>
+        {
+            new ControlSectionData("Frame", "frame", new List<CameraControl>
+            {
+                new CameraControl("zoom", "Zoom / FOV", 100, 400, 1, 100, "%"),
+                new CameraControl("pan", "Pan", -2592000, 2592000, 3600, 0),
+                new CameraControl("tilt", "Tilt", -1458000, 1458000, 3600, 0)
+            }),
+            new ControlSectionData("Picture", "picture", new List<CameraControl>
+            {
+                new CameraControl("contrast", "Contrast", 0, 100, 1, 80, "%"),
+                new CameraControl("saturation", "Saturation", 0, 127, 1, 64, "%"),
+                new CameraControl("sharpness", "Sharpness", 0, 255, 1, 128)
+            }),
+            new ControlSectionData("Exposure", "exposure", new List<CameraControl>
+            {
+                new CameraControl("exposure", "Shutter Speed", 1, 2500, 1, 156),
+                new CameraControl("gain", "ISO (Gain)", 0, 88, 1, 0),
+                new CameraControl("white_balance", "White Balance", 2800, 7500, 10, 5000, "K"),
+                new CameraControl("brightness", "Brightness", -9, 9, 1, 0)
+            })
         };
     }
 

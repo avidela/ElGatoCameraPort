@@ -2,11 +2,15 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using ElgatoControl.Api.Models;
+using System.Runtime.Versioning; // Added for SupportedOSPlatform
 
 namespace ElgatoControl.Api.Services;
 
-public class LinuxCameraController : ICameraController
+[SupportedOSPlatform("linux")]
+public class LinuxCameraDevice : ICameraDevice
 {
+    private const string TargetHardwareId = "0fd9:0093"; // Elgato Facecam MK.2
+
     public string? FindDevice()
     {
         // Primary: Try v4l2-ctl
@@ -145,12 +149,42 @@ public class LinuxCameraController : ICameraController
                 var match = Regex.Match(trimmed, @"\((\d+\.?\d*)\s*fps\)");
                 if (match.Success && double.TryParse(match.Groups[1].Value, out double fps))
                 {
-                    formats.Add(new VideoFormat(currentCodec, currentWidth, currentHeight, (int)Math.Round(fps)));
+                    int fpsInt = (int)Math.Round(fps);
+                    if (!(currentWidth == 1920 && currentHeight == 1080 && fpsInt == 60))
+                    {
+                        formats.Add(new VideoFormat(currentCodec, currentWidth, currentHeight, fpsInt));
+                    }
                 }
             }
         }
 
         return formats;
+    }
+
+    public IEnumerable<ControlSectionData> GetLayout()
+    {
+        return new List<ControlSectionData>
+        {
+            new ControlSectionData("Frame", "frame", new List<CameraControl>
+            {
+                new CameraControl("zoom", "Zoom / FOV", 100, 400, 1, 100, "%"),
+                new CameraControl("pan", "Pan", -2592000, 2592000, 3600, 0),
+                new CameraControl("tilt", "Tilt", -1458000, 1458000, 3600, 0)
+            }),
+            new ControlSectionData("Picture", "picture", new List<CameraControl>
+            {
+                new CameraControl("contrast", "Contrast", 0, 100, 1, 80, "%"),
+                new CameraControl("saturation", "Saturation", 0, 127, 1, 64, "%"),
+                new CameraControl("sharpness", "Sharpness", 0, 255, 1, 128)
+            }),
+            new ControlSectionData("Exposure", "exposure", new List<CameraControl>
+            {
+                new CameraControl("exposure", "Shutter Speed", 1, 2500, 1, 156),
+                new CameraControl("gain", "ISO (Gain)", 0, 88, 1, 0),
+                new CameraControl("white_balance", "White Balance", 2800, 7500, 10, 5000, "K"),
+                new CameraControl("brightness", "Brightness", -9, 9, 1, 0)
+            })
+        };
     }
 
     private string MapProperty(CameraProperty property)

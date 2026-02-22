@@ -3,11 +3,12 @@ using ElgatoControl.Api.Models;
 
 namespace ElgatoControl.Api.Services;
 
-public interface ICameraController
+public interface ICameraDevice
 {
     string? FindDevice();
     bool SetProperty(CameraProperty property, int value);
     string GetControls();
     void ResetToDefaults();
     IEnumerable<VideoFormat> GetSupportedFormats();
+    IEnumerable<ControlSectionData> GetLayout();
 }

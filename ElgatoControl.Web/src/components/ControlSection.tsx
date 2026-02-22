@@ -42,6 +42,8 @@ const ControlSection: React.FC<ControlSectionProps> = ({
                         pan={values['pan']}
                         tilt={values['tilt']}
                         onPresetClick={onPresetClick}
+                        onDragChange={(type, val) => onChange(type, val)}
+                        onDragCommit={(type, val) => onCommit(type, val)}
                     />
                 )}
                 {controls.map(control => (

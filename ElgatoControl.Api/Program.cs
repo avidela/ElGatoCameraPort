@@ -6,15 +6,17 @@ using ElgatoControl.Api.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// SOLID: Register the appropriate controller based on OS
+// SOLID: Register the appropriate hardware service based on OS
+#pragma warning disable CA1416
 if (OperatingSystem.IsWindows())
 {
-    builder.Services.AddSingleton<ICameraController, WindowsCameraController>();
+    builder.Services.AddSingleton<ICameraDevice, WindowsCameraDevice>();
 }
 else
 {
-    builder.Services.AddSingleton<ICameraController, LinuxCameraController>();
+    builder.Services.AddSingleton<ICameraDevice, LinuxCameraDevice>();
 }
+#pragma warning restore CA1416
 
 builder.Services.AddCors(options =>
 {
