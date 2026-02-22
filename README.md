@@ -11,7 +11,7 @@ Built with a .NET 9 API backend, a React + TypeScript frontend, and Electron.NET
 Download the latest `.deb` from the [Releases](../../releases) page and install it:
 
 ```bash
-sudo apt install ./elgato-camera-control_1.0.0_amd64.deb
+sudo apt install ./elgato-camera-control_0.1.0_amd64.deb
 ```
 
 This will automatically install `ffmpeg` and `v4l-utils` as dependencies. Launch **Elgato Camera Control** from your application menu.
@@ -26,11 +26,13 @@ ElgatoCameraPort/
 │   ├── Endpoints/             # Minimal API endpoint groups
 │   │   ├── CameraEndpoints    # GET layout, GET controls, POST set/save/reset
 │   │   ├── PresetEndpoints    # GET/POST preset load & save (A–D)
-│   │   └── StreamEndpoints    # MJPEG stream via FFmpeg
+│   │   ├── StreamEndpoints    # MJPEG stream via FFmpeg
+│   │   └── ScreenshotEndpoints# Open screenshots folder via xdg-open
 │   ├── Services/
 │   │   ├── ICameraDevice      # OS-agnostic camera interface
 │   │   ├── LinuxCameraDevice  # v4l2-ctl implementation (Linux)
 │   │   └── WindowsCameraDevice# DirectShow / WMF implementation (Windows)
+│   └── Utilities/AppPaths     # User config directory management
 │   └── Utilities/FFmpegUtility# FFmpeg process management
 │
 └── ElgatoControl.Web/         # React + TypeScript frontend (Vite)
@@ -39,7 +41,7 @@ ElgatoCameraPort/
         │   ├── useCameraLayout   # Sections schema + values state
         │   ├── useCameraPreview  # Stream URL + format selection
         │   ├── useCameraActions  # All API calls, status, presets
-        │   └── useScreenshot     # Canvas capture
+        │   └── useScreenshot     # Canvas capture + folder open
         ├── components/        # Pure UI components
         └── styles/            # Per-component SCSS (BEM)
 ```
@@ -64,7 +66,7 @@ ElgatoCameraPort/
 ### Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9)
-- [Node.js 20+](https://nodejs.org/)
+- [Node.js 22+](https://nodejs.org/)
 - `dotnet tool install ElectronNET.CLI -g` (for running the Electron window locally)
 
 ### 1. Start the API (browser mode)
@@ -96,7 +98,7 @@ cd ElgatoControl.Api
 DOTNET_ROLL_FORWARD=LatestMajor electronize start
 ```
 
-> **Note:** `DOTNET_ROLL_FORWARD=LatestMajor` is needed because the `electronize` CLI targets .NET 6 but ships with .NET 8+. The built `.deb` is fully self-contained and doesn't require .NET on the user's machine.
+> **Note:** `DOTNET_ROLL_FORWARD=LatestMajor` is needed because the `electronize` CLI targets .NET 6 but ships with .NET 9+. The built `.deb` is fully self-contained and doesn't require .NET on the user's machine.
 
 ---
 
@@ -104,7 +106,7 @@ DOTNET_ROLL_FORWARD=LatestMajor electronize start
 
 ```bash
 ./scripts/build-deb.sh
-# Output: ElgatoControl.Api/bin/Desktop/elgato-camera-control_1.0.0_amd64.deb
+# Output: ElgatoControl.Api/bin/Desktop/elgato-camera-control_0.1.0_amd64.deb
 ```
 
 ### Releasing via GitHub Actions
@@ -112,7 +114,7 @@ DOTNET_ROLL_FORWARD=LatestMajor electronize start
 Tag a commit to trigger a release build that automatically attaches the `.deb` to a GitHub Release:
 
 ```bash
-git tag v1.0.0
+git tag v0.1.0
 git push --tags
 ```
 
@@ -150,7 +152,8 @@ Open `http://localhost:5000` in your browser.
 
 ## Preset System
 
-Presets **A, B, C, D** store `zoom`, `pan`, and `tilt` values in `presets.json` on the backend. Preset A is applied automatically on API startup.
+Presets **A, B, C, D** store `zoom`, `pan`, and `tilt` values in `~/.config/elgato-camera-control/presets.json` on the backend. This ensures development state and installed application state are kept separate. Preset A is applied automatically on API startup.
 
 - **Load preset** — `GET /api/camera/preset/load/{id}`
 - **Save preset** — `POST /api/camera/preset/save/{id}`
+
