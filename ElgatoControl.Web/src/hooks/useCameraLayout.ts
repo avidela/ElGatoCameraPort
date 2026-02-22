@@ -1,25 +1,21 @@
 import { useState, useEffect } from 'react';
 import type { ControlSectionData } from '../types';
 
-export function useCameraLayout(
-    setValues: (values: Record<string, number>) => void
-) {
+export function useCameraLayout() {
     const [sections, setSections] = useState<ControlSectionData[]>([]);
     const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+    const [values, setValues] = useState<Record<string, number>>({});
 
     useEffect(() => {
-        // 1. Fetch Layout Schema
         fetch('http://localhost:5000/api/camera/layout')
             .then(res => res.json())
             .then(layoutData => {
                 if (layoutData.success && layoutData.layout) {
-                    // 2. Fetch Active Hardware Controls
                     fetch('http://localhost:5000/api/camera/controls')
                         .then(res => res.json())
                         .then(controlsData => {
                             const newCollapsed: Record<string, boolean> = {};
                             const newValues: Record<string, number> = {};
-
                             const backendValues = (controlsData.success && controlsData.values) ? controlsData.values : {};
 
                             layoutData.layout.forEach((sec: ControlSectionData) => {
@@ -45,5 +41,9 @@ export function useCameraLayout(
         setCollapsed(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
     };
 
-    return { sections, collapsed, toggleCollapse };
+    const handleChange = (id: string, value: number) => {
+        setValues(prev => ({ ...prev, [id]: value }));
+    };
+
+    return { sections, collapsed, toggleCollapse, values, setValues, handleChange };
 }
