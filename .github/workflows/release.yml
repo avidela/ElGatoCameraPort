@@ -42,6 +42,11 @@ jobs:
           rm -rf ElgatoControl.Api/wwwroot
           cp -r ElgatoControl.Web/dist ElgatoControl.Api/wwwroot
 
+      - name: Inject version from tag
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          sed -i "s/\"buildVersion\": \".*\"/\"buildVersion\": \"$VERSION\"/" ElgatoControl.Api/electron.manifest.json
+
       - name: Build Electron .deb
         working-directory: ElgatoControl.Api
         env:
