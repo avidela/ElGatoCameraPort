@@ -33,6 +33,8 @@ public partial class App : Application
             services.AddSingleton<ICameraDevice, LinuxCameraDevice>();
         }
 
+        services.AddSingleton<IStreamService, StreamService>();
+
         // ViewModels
         services.AddTransient<MainViewModel>();
 

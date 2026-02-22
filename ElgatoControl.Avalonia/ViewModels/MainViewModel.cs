@@ -1,15 +1,25 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using ElgatoControl.Core.Services;
 using ElgatoControl.Core.Models;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Media.Imaging;
+using System.IO;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
+using Avalonia.Threading;
 
 namespace ElgatoControl.Avalonia.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly ICameraDevice _cameraDevice;
+    private readonly IStreamService _streamService;
+    private CancellationTokenSource? _previewCts;
+    private Guid _currentStreamId;
 
     [ObservableProperty]
     private string _greeting = "Welcome to Avalonia!";
@@ -17,15 +27,26 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<SectionViewModel> _sections = new();
 
-    public MainViewModel(ICameraDevice cameraDevice)
+    [ObservableProperty]
+    private Bitmap? _previewImage;
+
+    [ObservableProperty]
+    private bool _isPreviewActive;
+
+    [ObservableProperty]
+    private string _previewStatus = "Preview Off";
+
+    public MainViewModel(ICameraDevice cameraDevice, IStreamService streamService)
     {
         _cameraDevice = cameraDevice;
+        _streamService = streamService;
         LoadLayout();
     }
 
     public MainViewModel()
     {
         _cameraDevice = null!;
+        _streamService = null!;
     }
 
     private void LoadLayout()
@@ -70,5 +91,218 @@ public partial class MainViewModel : ObservableObject
             controlVm.UpdateValue(val);
         }
         return controlVm;
+    }
+
+    [RelayCommand]
+    private async Task TogglePreview()
+    {
+        if (IsPreviewActive)
+        {
+            await StopPreviewAsync();
+        }
+        else
+        {
+            await StartPreviewAsync();
+        }
+    }
+
+    private async Task StartPreviewAsync()
+    {
+        if (IsPreviewActive) return;
+
+        try
+        {
+            PreviewStatus = "Connecting...";
+            IsPreviewActive = true;
+
+            string device = _cameraDevice.FindDevice() ?? "/dev/video0";
+            // Standard HD resolution for preview
+            var result = await _streamService.StartStreamAsync(device, 1280, 720, 30);
+
+            if (result.Stream == null)
+            {
+                PreviewStatus = "Failed to start stream";
+                IsPreviewActive = false;
+                return;
+            }
+
+            _currentStreamId = result.StreamId;
+            _previewCts = new CancellationTokenSource();
+
+            // Start reading the stream in background
+            _ = Task.Run(() => ReadMjpegStream(result.Stream, _previewCts.Token), _previewCts.Token);
+            PreviewStatus = "Live";
+        }
+        catch (Exception ex)
+        {
+            PreviewStatus = $"Error: {ex.Message}";
+            IsPreviewActive = false;
+        }
+    }
+
+    private async Task StopPreviewAsync()
+    {
+        if (!IsPreviewActive) return;
+
+        try
+        {
+            _previewCts?.Cancel();
+            if (_currentStreamId != Guid.Empty)
+            {
+                await _streamService.StopStreamAsync(_currentStreamId);
+            }
+        }
+        finally
+        {
+            IsPreviewActive = false;
+            PreviewStatus = "Preview Off";
+            PreviewImage = null;
+            _currentStreamId = Guid.Empty;
+        }
+    }
+
+    [RelayCommand]
+    private async Task Snapshot()
+    {
+        if (PreviewImage == null) return;
+
+        try
+        {
+            var fileName = $"snapshot_{DateTime.Now:yyyyMMdd_HHmmss}.png";
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), fileName);
+
+            // Ensure directory exists
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            // Using Task.Run to offload IO
+            await Task.Run(() =>
+            {
+                using var stream = File.Create(path);
+                PreviewImage.Save(stream);
+            });
+
+            var oldStatus = PreviewStatus;
+            PreviewStatus = $"Saved: {fileName}";
+
+            // Revert status message after delay
+            _ = Task.Delay(3000).ContinueWith(_ =>
+            {
+                if (PreviewStatus.StartsWith("Saved"))
+                {
+                   Dispatcher.UIThread.Post(() => PreviewStatus = IsPreviewActive ? "Live" : "Preview Off");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            PreviewStatus = $"Snapshot Error: {ex.Message}";
+        }
+    }
+
+    private async Task ReadMjpegStream(Stream stream, CancellationToken token)
+    {
+        try
+        {
+            byte[] buffer = new byte[8192];
+            List<byte> frameBuffer = new List<byte>(1024 * 1024); // Preallocate 1MB
+            bool inFrame = false;
+            bool lastByteWasFF = false;
+
+            while (!token.IsCancellationRequested)
+            {
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, token);
+                if (bytesRead == 0) break; // End of stream
+
+                for (int i = 0; i < bytesRead; i++)
+                {
+                    byte b = buffer[i];
+
+                    if (!inFrame)
+                    {
+                        if (lastByteWasFF)
+                        {
+                            if (b == 0xD8) // SOI found (FF D8)
+                            {
+                                inFrame = true;
+                                frameBuffer.Clear();
+                                frameBuffer.Add(0xFF);
+                                frameBuffer.Add(0xD8);
+                            }
+                            lastByteWasFF = false;
+                        }
+                        else if (b == 0xFF)
+                        {
+                            lastByteWasFF = true;
+                        }
+                    }
+                    else
+                    {
+                        frameBuffer.Add(b);
+                        if (lastByteWasFF)
+                        {
+                            if (b == 0xD9) // EOI found (FF D9)
+                            {
+                                // Render frame
+                                var frameData = frameBuffer.ToArray();
+                                await UpdatePreviewImage(frameData);
+
+                                inFrame = false;
+                                frameBuffer.Clear();
+                            }
+                            // Important: update lastByteWasFF for the next iteration (e.g. FF FF case)
+                            lastByteWasFF = (b == 0xFF);
+                        }
+                        else if (b == 0xFF)
+                        {
+                            lastByteWasFF = true;
+                        }
+                    }
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal shutdown
+        }
+        catch (Exception ex)
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                PreviewStatus = $"Stream Error: {ex.Message}";
+            });
+        }
+    }
+
+    private async Task UpdatePreviewImage(byte[] imageData)
+    {
+        try
+        {
+            using var ms = new MemoryStream(imageData);
+            var bitmap = new Bitmap(ms);
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                var old = PreviewImage;
+                PreviewImage = bitmap;
+                old?.Dispose();
+            });
+        }
+        catch
+        {
+            // Ignore bad frames
+        }
+    }
+
+    public void Dispose()
+    {
+        _previewCts?.Cancel();
+        if (_currentStreamId != Guid.Empty)
+        {
+            _streamService.StopStreamAsync(_currentStreamId).Wait();
+        }
     }
 }

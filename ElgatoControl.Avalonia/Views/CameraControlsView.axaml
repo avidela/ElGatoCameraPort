@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ElgatoControl.Avalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="800"
+             x:Class="ElgatoControl.Avalonia.Views.CameraControlsView"
+             x:DataType="vm:MainViewModel">
+
+    <UserControl.Styles>
+        <StyleInclude Source="/AppStyles.axaml" />
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Classes="h3" Text="DEVICE" Margin="0,0,0,15" />
+
+        <ScrollViewer Grid.Row="1" Margin="0,0,10,0">
+            <ItemsControl ItemsSource="{Binding Sections}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="15"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:SectionViewModel">
+                        <Border Classes="card">
+                            <StackPanel Spacing="10">
+                                <!-- Section Title -->
+                                <TextBlock Text="{Binding Title}" Classes="h3" FontSize="16" />
+
+                                <ItemsControl ItemsSource="{Binding Items}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Spacing="10"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.DataTemplates>
+                                        <!-- Single Control Template -->
+                                        <DataTemplate DataType="vm:ControlViewModel">
+                                            <Grid RowDefinitions="Auto, Auto" Margin="0,5">
+                                                <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Label}" Classes="label" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat='{}{0} %'}" Classes="primary" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
+                                                </Grid>
+
+                                                <Grid Grid.Row="1" ColumnDefinitions="*, 60">
+                                                    <Slider Grid.Column="0"
+                                                            Value="{Binding Value}"
+                                                            Minimum="{Binding Min}"
+                                                            Maximum="{Binding Max}"
+                                                            TickFrequency="{Binding Step}"
+                                                            IsSnapToTickEnabled="True"
+                                                            Margin="0,0,10,0" VerticalAlignment="Center"/>
+
+                                                    <NumericUpDown Grid.Column="1"
+                                                                   Value="{Binding Value}"
+                                                                   Minimum="{Binding Min}"
+                                                                   Maximum="{Binding Max}"
+                                                                   Increment="{Binding Step}"
+                                                                   FormatString="0"
+                                                                   VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+
+                                        <!-- Pair Control Template (Pan/Tilt) -->
+                                        <DataTemplate DataType="vm:ControlPairViewModel">
+                                            <Grid ColumnDefinitions="*, 10, *" Margin="0,2">
+                                                <!-- Left Control (Pan) -->
+                                                <Grid Grid.Column="0" RowDefinitions="Auto, Auto">
+                                                    <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
+                                                        <TextBlock Grid.Column="0" Text="{Binding Left.Label}" Classes="label"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Left.Value, StringFormat='{}{0} %'}" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
+                                                    </Grid>
+
+                                                    <NumericUpDown Grid.Row="1"
+                                                                   Value="{Binding Left.Value}"
+                                                                   Minimum="{Binding Left.Min}"
+                                                                   Maximum="{Binding Left.Max}"
+                                                                   Increment="{Binding Left.Step}"
+                                                                   FormatString="0"
+                                                                   HorizontalAlignment="Stretch"/>
+                                                </Grid>
+
+                                                <!-- Right Control (Tilt) -->
+                                                <Grid Grid.Column="2" RowDefinitions="Auto, Auto">
+                                                     <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
+                                                        <TextBlock Grid.Column="0" Text="{Binding Right.Label}" Classes="label"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Right.Value, StringFormat='{}{0} %'}" Foreground="{DynamicResource AccentBlueBrush}" FontWeight="Bold"/>
+                                                    </Grid>
+
+                                                    <NumericUpDown Grid.Row="1"
+                                                                   Value="{Binding Right.Value}"
+                                                                   Minimum="{Binding Right.Min}"
+                                                                   Maximum="{Binding Right.Max}"
+                                                                   Increment="{Binding Right.Step}"
+                                                                   FormatString="0"
+                                                                   HorizontalAlignment="Stretch"/>
+                                                </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.DataTemplates>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

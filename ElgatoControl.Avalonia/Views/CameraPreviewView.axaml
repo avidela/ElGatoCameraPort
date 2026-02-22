@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ElgatoControl.Avalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="ElgatoControl.Avalonia.Views.CameraPreviewView"
+             x:DataType="vm:MainViewModel">
+
+    <UserControl.Styles>
+         <StyleInclude Source="/AppStyles.axaml" />
+    </UserControl.Styles>
+
+    <Border Background="Black" CornerRadius="{DynamicResource RadiusMd}" ClipToBounds="True" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+        <Grid>
+            <!-- Placeholder when no image -->
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" IsVisible="{Binding !IsPreviewActive}">
+                <TextBlock Text="No Signal"
+                           Foreground="{DynamicResource TextDimBrush}"
+                           FontSize="24"
+                           HorizontalAlignment="Center"/>
+                <Button Classes="primary" Command="{Binding TogglePreviewCommand}" Content="Start Preview" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Camera Feed -->
+            <Image Source="{Binding PreviewImage}"
+                   Stretch="Uniform"
+                   IsVisible="{Binding IsPreviewActive}"/>
+
+            <!-- Overlays -->
+            <Grid IsVisible="{Binding IsPreviewActive}">
+                 <!-- Status Badge -->
+                <Border Background="#AA000000" VerticalAlignment="Top" HorizontalAlignment="Left" CornerRadius="4" Padding="8,4" Margin="15">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                         <Ellipse Width="8" Height="8" Fill="#FF4444"/>
+                         <TextBlock Text="LIVE" Foreground="#FF4444" FontWeight="Bold" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Bottom Toolbar (Fake) -->
+                <Border VerticalAlignment="Bottom" Background="#DD101010" Padding="15">
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="1080p60" Foreground="{DynamicResource TextDimBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                             <Button Content="Snapshot" Command="{Binding SnapshotCommand}" Classes="primary"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,126 +1,28 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ElgatoControl.Avalonia.ViewModels"
+        xmlns:views="using:ElgatoControl.Avalonia.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="800"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="ElgatoControl.Avalonia.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="Elgato Camera Control"
-        Width="1000" Height="800"
+        Width="1200" Height="800"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E1E" Foreground="#FFFFFF">
+        Background="{DynamicResource BgMainBrush}"
+        Foreground="{DynamicResource TextMainBrush}">
 
     <Design.DataContext>
         <vm:MainViewModel/>
     </Design.DataContext>
 
-    <ScrollViewer>
-        <StackPanel Margin="20">
-            <TextBlock Text="Camera Control" FontSize="28" FontWeight="Bold" Margin="0,0,0,20" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+    <Grid ColumnDefinitions="350, *" Margin="20">
+        <!-- Sidebar -->
+        <views:CameraControlsView Grid.Column="0" />
 
-            <ItemsControl ItemsSource="{Binding Sections}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Spacing="15"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="vm:SectionViewModel">
-                        <Border Background="#2D2D2D" CornerRadius="8" Padding="15" BoxShadow="0 4 10 0 #101010">
-                            <StackPanel Spacing="10">
-                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="18" Foreground="#CCCCCC" Margin="0,0,0,5"/>
-                                <ItemsControl ItemsSource="{Binding Items}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Spacing="10"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-
-                                    <ItemsControl.DataTemplates>
-                                        <!-- Single Control Template -->
-                                        <DataTemplate DataType="vm:ControlViewModel">
-                                            <Grid ColumnDefinitions="140, *, 90, 30" Margin="0,2">
-                                                <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" Foreground="#AAAAAA" FontSize="14"/>
-
-                                                <Slider Grid.Column="1"
-                                                        Value="{Binding Value}"
-                                                        Minimum="{Binding Min}"
-                                                        Maximum="{Binding Max}"
-                                                        TickFrequency="{Binding Step}"
-                                                        IsSnapToTickEnabled="True"
-                                                        Margin="15,0" VerticalAlignment="Center"/>
-
-                                                <NumericUpDown Grid.Column="2"
-                                                               Value="{Binding Value}"
-                                                               Minimum="{Binding Min}"
-                                                               Maximum="{Binding Max}"
-                                                               Increment="{Binding Step}"
-                                                               FormatString="0"
-                                                               VerticalAlignment="Center"/>
-
-                                                <TextBlock Grid.Column="3" Text="{Binding Unit}" VerticalAlignment="Center" Foreground="#888888" Margin="5,0,0,0"/>
-                                            </Grid>
-                                        </DataTemplate>
-
-                                        <!-- Pair Control Template (Pan/Tilt) -->
-                                        <DataTemplate DataType="vm:ControlPairViewModel">
-                                            <Grid ColumnDefinitions="*, 10, *" Margin="0,2">
-                                                <!-- Left Control (Pan) -->
-                                                <Grid Grid.Column="0" ColumnDefinitions="40, *, 70, 30">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Left.Label}" VerticalAlignment="Center" Foreground="#AAAAAA" FontSize="14"/>
-
-                                                    <Slider Grid.Column="1"
-                                                            Value="{Binding Left.Value}"
-                                                            Minimum="{Binding Left.Min}"
-                                                            Maximum="{Binding Left.Max}"
-                                                            TickFrequency="{Binding Left.Step}"
-                                                            IsSnapToTickEnabled="True"
-                                                            Margin="10,0" VerticalAlignment="Center"/>
-
-                                                    <NumericUpDown Grid.Column="2"
-                                                                   Value="{Binding Left.Value}"
-                                                                   Minimum="{Binding Left.Min}"
-                                                                   Maximum="{Binding Left.Max}"
-                                                                   Increment="{Binding Left.Step}"
-                                                                   FormatString="0"
-                                                                   VerticalAlignment="Center"/>
-
-                                                    <TextBlock Grid.Column="3" Text="{Binding Left.Unit}" VerticalAlignment="Center" Foreground="#888888" Margin="5,0,0,0"/>
-                                                </Grid>
-
-                                                <!-- Right Control (Tilt) -->
-                                                <Grid Grid.Column="2" ColumnDefinitions="40, *, 70, 30">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Right.Label}" VerticalAlignment="Center" Foreground="#AAAAAA" FontSize="14"/>
-
-                                                    <Slider Grid.Column="1"
-                                                            Value="{Binding Right.Value}"
-                                                            Minimum="{Binding Right.Min}"
-                                                            Maximum="{Binding Right.Max}"
-                                                            TickFrequency="{Binding Right.Step}"
-                                                            IsSnapToTickEnabled="True"
-                                                            Margin="10,0" VerticalAlignment="Center"/>
-
-                                                    <NumericUpDown Grid.Column="2"
-                                                                   Value="{Binding Right.Value}"
-                                                                   Minimum="{Binding Right.Min}"
-                                                                   Maximum="{Binding Right.Max}"
-                                                                   Increment="{Binding Right.Step}"
-                                                                   FormatString="0"
-                                                                   VerticalAlignment="Center"/>
-
-                                                    <TextBlock Grid.Column="3" Text="{Binding Right.Unit}" VerticalAlignment="Center" Foreground="#888888" Margin="5,0,0,0"/>
-                                                </Grid>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.DataTemplates>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-    </ScrollViewer>
+        <!-- Main Preview -->
+        <views:CameraPreviewView Grid.Column="1" Margin="20,0,0,0"/>
+    </Grid>
 
 </Window>

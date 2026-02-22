@@ -1,0 +1,69 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <Color x:Key="BgMainColor">#0b0b0b</Color>
+        <Color x:Key="BgSidebarColor">#121212</Color>
+        <Color x:Key="BgHeaderColor">#1a1a1a</Color>
+        <Color x:Key="BgControlColor">#1e1e1e</Color>
+        <Color x:Key="BgCardColor">#191919</Color>
+        <Color x:Key="AccentBlueColor">#00aaff</Color>
+        <Color x:Key="TextMainColor">#e0e0e0</Color>
+        <Color x:Key="TextDimColor">#888888</Color>
+        <Color x:Key="TextLabelColor">#aaaaaa</Color>
+        <Color x:Key="BorderColor">#2a2a2a</Color>
+        <Color x:Key="BorderLightColor">#333333</Color>
+
+        <SolidColorBrush x:Key="BgMainBrush" Color="{StaticResource BgMainColor}" />
+        <SolidColorBrush x:Key="BgSidebarBrush" Color="{StaticResource BgSidebarColor}" />
+        <SolidColorBrush x:Key="BgHeaderBrush" Color="{StaticResource BgHeaderColor}" />
+        <SolidColorBrush x:Key="BgControlBrush" Color="{StaticResource BgControlColor}" />
+        <SolidColorBrush x:Key="BgCardBrush" Color="{StaticResource BgCardColor}" />
+        <SolidColorBrush x:Key="AccentBlueBrush" Color="{StaticResource AccentBlueColor}" />
+        <SolidColorBrush x:Key="TextMainBrush" Color="{StaticResource TextMainColor}" />
+        <SolidColorBrush x:Key="TextDimBrush" Color="{StaticResource TextDimColor}" />
+        <SolidColorBrush x:Key="TextLabelBrush" Color="{StaticResource TextLabelColor}" />
+        <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+        <SolidColorBrush x:Key="BorderLightBrush" Color="{StaticResource BorderLightColor}" />
+
+        <CornerRadius x:Key="RadiusSm">4</CornerRadius>
+        <CornerRadius x:Key="RadiusMd">5</CornerRadius>
+    </Styles.Resources>
+
+    <!-- Base Text Style -->
+    <Style Selector="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextMainBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource InterFont}" />
+    </Style>
+
+    <!-- Button Style -->
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{DynamicResource AccentBlueBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusSm}" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Card Style -->
+    <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource BgCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+            <Setter Property="Padding" Value="10" />
+    </Style>
+
+    <!-- Control Group Header -->
+    <Style Selector="TextBlock.h3">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextMainBrush}" />
+        <Setter Property="Margin" Value="0,0,0,10" />
+    </Style>
+
+    <!-- Label Style -->
+    <Style Selector="TextBlock.label">
+            <Setter Property="Foreground" Value="{DynamicResource TextLabelBrush}" />
+            <Setter Property="FontSize" Value="12" />
+    </Style>
+</Styles>

@@ -15,6 +15,7 @@ public class MainViewModelTests
     {
         // Arrange
         var mockCamera = new Mock<ICameraDevice>();
+        var mockStream = new Mock<IStreamService>();
 
         var layout = new List<ControlSectionData>
         {
@@ -31,7 +32,7 @@ public class MainViewModelTests
         mockCamera.Setup(c => c.GetControlValues()).Returns(new Dictionary<string, int>());
 
         // Act
-        var vm = new MainViewModel(mockCamera.Object);
+        var vm = new MainViewModel(mockCamera.Object, mockStream.Object);
 
         // Assert
         Assert.Single(vm.Sections);
@@ -52,6 +53,7 @@ public class MainViewModelTests
     {
         // Arrange
         var mockCamera = new Mock<ICameraDevice>();
+        var mockStream = new Mock<IStreamService>();
 
         var layout = new List<ControlSectionData>
         {
@@ -66,7 +68,7 @@ public class MainViewModelTests
         mockCamera.Setup(c => c.GetControlValues()).Returns(new Dictionary<string, int>());
 
         // Act
-        var vm = new MainViewModel(mockCamera.Object);
+        var vm = new MainViewModel(mockCamera.Object, mockStream.Object);
 
         // Assert
         Assert.Single(vm.Sections);
