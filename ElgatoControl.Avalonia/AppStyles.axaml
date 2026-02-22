@@ -32,7 +32,7 @@
     <!-- Base Text Style -->
     <Style Selector="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource TextMainBrush}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterFont}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterFont}" />
     </Style>
 
     <!-- Button Style -->
