@@ -1,12 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "6Qa99P/r7gt3PArusLLUCSaqEJRnTHUuXzcyPvJLCT4=",
-  "Source": "ElgatoControl.Api",
-  "BasePath": "_content/ElgatoControl.Api",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
-}
+{"Version":1,"Hash":"qLxKRY6iuFtSN3IdyIcATfACDs3k6cZdnwPT5NlYVXQ=","Source":"ElgatoControl.Api","BasePath":"/","Mode":"Root","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}

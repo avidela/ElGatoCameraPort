@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElgatoControl.Api", "ElgatoControl.Api\ElgatoControl.Api.csproj", "{F30CDF7D-0C94-E2E0-5526-D89EC9272745}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F30CDF7D-0C94-E2E0-5526-D89EC9272745}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F30CDF7D-0C94-E2E0-5526-D89EC9272745}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F30CDF7D-0C94-E2E0-5526-D89EC9272745}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F30CDF7D-0C94-E2E0-5526-D89EC9272745}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8A3DB7C1-A5F4-456A-8650-AE837C257180}
+	EndGlobalSection
+EndGlobal

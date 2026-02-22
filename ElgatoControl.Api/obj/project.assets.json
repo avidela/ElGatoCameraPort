@@ -8,25 +8,24 @@
     "net9.0": []
   },
   "packageFolders": {
-    "C:\\Users\\Andres\\.nuget\\packages\\": {}
+    "/home/andres/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Andres\\ElgatoCameraPort\\ElgatoControl.Api\\ElgatoControl.Api.csproj",
+      "projectUniqueName": "/home/andres/src/ElgatoCameraPort/ElgatoControl.Api/ElgatoControl.Api.csproj",
       "projectName": "ElgatoControl.Api",
-      "projectPath": "C:\\Users\\Andres\\ElgatoCameraPort\\ElgatoControl.Api\\ElgatoControl.Api.csproj",
-      "packagesPath": "C:\\Users\\Andres\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Andres\\ElgatoCameraPort\\ElgatoControl.Api\\obj\\",
+      "projectPath": "/home/andres/src/ElgatoCameraPort/ElgatoControl.Api/ElgatoControl.Api.csproj",
+      "packagesPath": "/home/andres/.nuget/packages/",
+      "outputPath": "/home/andres/src/ElgatoCameraPort/ElgatoControl.Api/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Andres\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/home/andres/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -45,7 +44,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.100"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -61,6 +60,20 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[9.0.11, 9.0.11]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.linux-x64",
+            "version": "[9.0.11, 9.0.11]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[9.0.11, 9.0.11]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"
@@ -69,7 +82,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.114/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/home/andres/.dotnet/sdk/10.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
