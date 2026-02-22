@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Versioning;
@@ -11,6 +12,8 @@ namespace ElgatoControl.Core.Services;
 public class WindowsCameraDevice : ICameraDevice
 {
     private const string TargetDeviceName = "@device_pnp_\\\\?\\usb#vid_0fd9&pid_0093&mi_00#b&17cf1500&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global";
+
+    public string DeviceName => "Elgato Facecam MK.2";
 
     public string? FindDevice() => TargetDeviceName;
 
@@ -62,7 +65,10 @@ public class WindowsCameraDevice : ICameraDevice
             new VideoFormat("MJPG", 1920, 1080, 60),
             new VideoFormat("MJPG", 1280, 720, 60),
             new VideoFormat("YUYV", 1920, 1080, 30)
-        };
+        }
+        .OrderByDescending(f => f.Width * f.Height)
+        .ThenByDescending(f => f.Fps)
+        .ToList();
     }
 
     public IEnumerable<ControlSectionData> GetLayout()

@@ -6,6 +6,7 @@ namespace ElgatoControl.Core.Services;
 public interface ICameraDevice
 {
     string? FindDevice();
+    string DeviceName { get; }
     bool SetProperty(CameraProperty property, int value);
     string GetControls();
     Dictionary<string, int> GetControlValues();

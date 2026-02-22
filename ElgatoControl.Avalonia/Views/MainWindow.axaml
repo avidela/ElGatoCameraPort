@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ElgatoControl.Avalonia.ViewModels"
+        xmlns:views="using:ElgatoControl.Avalonia.Views"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="ElgatoControl.Avalonia.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Elgato Camera Control"
+        Width="1200" Height="800"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgMainBrush}"
+        Foreground="{DynamicResource TextMainBrush}">
+
+    <Design.DataContext>
+        <vm:MainViewModel/>
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="350, *" Margin="20">
+        <!-- Sidebar -->
+        <views:CameraControlsView Grid.Column="0" />
+
+        <!-- Main Preview -->
+        <views:CameraPreviewView Grid.Column="1" Margin="20,0,0,0"/>
+    </Grid>
+
+</Window>

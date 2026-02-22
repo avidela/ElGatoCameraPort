@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Linq;
 using ElgatoControl.Core.Models;
 using System.Runtime.Versioning; // Added for SupportedOSPlatform
 
@@ -10,6 +11,8 @@ namespace ElgatoControl.Core.Services;
 public class LinuxCameraDevice : ICameraDevice
 {
     private const string TargetHardwareId = "0fd9:0093"; // Elgato Facecam MK.2
+
+    public string DeviceName => "Elgato Facecam MK.2";
 
     public string? FindDevice()
     {
@@ -226,7 +229,10 @@ public class LinuxCameraDevice : ICameraDevice
             }
         }
 
-        return formats;
+        return formats
+            .OrderByDescending(f => f.Width * f.Height)
+            .ThenByDescending(f => f.Fps)
+            .ToList();
     }
 
     public IEnumerable<ControlSectionData> GetLayout()
