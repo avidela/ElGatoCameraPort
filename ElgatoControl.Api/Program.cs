@@ -1,47 +1,44 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using ElgatoControl.Api.Services;
 using ElgatoControl.Api.Endpoints;
+using ElectronNET.API;
+using ElectronNET.API.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// SOLID: Register the appropriate hardware service based on OS
+// Register camera service based on OS
 #pragma warning disable CA1416
 if (OperatingSystem.IsWindows())
-{
     builder.Services.AddSingleton<ICameraDevice, WindowsCameraDevice>();
-}
 else
-{
     builder.Services.AddSingleton<ICameraDevice, LinuxCameraDevice>();
-}
 #pragma warning restore CA1416
 
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    });
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
+
+// Hook in Electron.NET
+builder.WebHost.UseElectron(args);
 
 var app = builder.Build();
 app.UseCors();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Register all abstracted camera endpoints
 app.MapCameraEndpoints();
 app.MapPresetEndpoints();
 app.MapStreamEndpoints();
 
-// Enforce Preset A on Hardware Boot (Absolute Backend Truth)
+// Enforce Preset A on boot
 using (var scope = app.Services.CreateScope())
 {
     var camera = scope.ServiceProvider.GetRequiredService<ICameraDevice>();
     string presetsFile = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "presets.json");
-    
+
     if (System.IO.File.Exists(presetsFile))
     {
         try
@@ -55,8 +52,35 @@ using (var scope = app.Services.CreateScope())
                 camera.SetProperty(CameraProperty.Tilt, stateA.Tilt);
             }
         }
-        catch { } // Ignore JSON parse errors on initial boot
+        catch { }
     }
 }
 
-app.Run("http://localhost:5000");
+// Open Electron window (only runs when launched via electronize)
+if (HybridSupport.IsElectronActive)
+{
+    await app.StartAsync();
+
+    var window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
+    {
+        Width = 1400,
+        Height = 900,
+        Title = "Elgato Camera Control",
+        Show = false, // wait until ready to avoid blank flash
+        WebPreferences = new WebPreferences
+        {
+            NodeIntegration = false,
+            ContextIsolation = true
+        }
+    });
+
+    window.OnReadyToShow += () => window.Show();
+    window.OnClosed += () => Electron.App.Quit();
+
+    await app.WaitForShutdownAsync();
+}
+else
+{
+    // Normal browser/API mode when not running via Electron
+    app.Run("http://localhost:5000");
+}

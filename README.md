@@ -82,6 +82,19 @@ npm run dev
 
 The frontend dev server proxies API calls to `http://localhost:5000`.
 
+### 3. Run as a desktop app (Electron)
+
+```bash
+# Install the CLI once
+dotnet tool install ElectronNET.CLI -g
+
+# Start in Electron window (from ElgatoControl.Api/)
+cd ElgatoControl.Api
+DOTNET_ROLL_FORWARD=LatestMajor electronize start
+```
+
+> **Note:** `DOTNET_ROLL_FORWARD=LatestMajor` is needed because the `electronize` CLI targets .NET 6 but you have .NET 8+. This is a dev-time-only workaround — the built `.deb` is fully self-contained.
+
 ---
 
 ## Running with Docker (Linux only)

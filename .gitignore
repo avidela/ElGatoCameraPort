@@ -3,6 +3,16 @@
 /ElgatoControl.Api/bin/
 /ElgatoControl.Api/obj/
 
+# Electron.NET generated (at solution root)
+/obj/
+
+# Electron.NET generated
+/ElgatoControl.Api/ElectronHostHook/
+/ElgatoControl.Api/wwwroot/
+
+# Electron build output
+/bin/Desktop/
+
 # Envs
 .env
 .env.local

@@ -1,0 +1,53 @@
+{
+  "executable": "ElgatoControl.Api",
+  "splashscreen": {
+    "imageFile": ""
+  },
+  "name": "Elgato Camera Control",
+  "author": "",
+  "singleInstance": true,
+  "environment": "Production",
+  "build": {
+    "appId": "io.elgatocameraport.app",
+    "productName": "Elgato Camera Control",
+    "copyright": "Copyright © 2025",
+    "buildVersion": "1.0.0",
+    "compression": "maximum",
+    "directories": {
+      "output": "../../../bin/Desktop"
+    },
+    "linux": {
+      "target": [
+        "deb"
+      ],
+      "category": "Utility",
+      "synopsis": "Camera control panel for Elgato Facecam",
+      "executableName": "elgato-camera-control"
+    },
+    "deb": {
+      "depends": [
+        "ffmpeg",
+        "v4l-utils"
+      ]
+    },
+    "extraResources": [
+      {
+        "from": "./bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "from": "./ElectronHostHook/node_modules",
+        "to": "ElectronHostHook/node_modules",
+        "filter": [
+          "**/*"
+        ]
+      },
+      "**/*"
+    ]
+  }
+}
