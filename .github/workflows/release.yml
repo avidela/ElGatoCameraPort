@@ -53,10 +53,57 @@ jobs:
           DOTNET_ROLL_FORWARD: LatestMajor
         run: electronize build /target linux /electron-arch x64 /electron-params "--publish=never"
 
+      - name: Build Avalonia
+        run: |
+          dotnet publish ElgatoControl.Avalonia -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/avalonia
+
+      - name: Package Avalonia .deb
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          mkdir -p pkg/DEBIAN
+          mkdir -p pkg/usr/bin
+          mkdir -p pkg/usr/lib/elgato-camera-control-avalonia
+          mkdir -p pkg/usr/share/applications
+          mkdir -p pkg/usr/share/pixmaps
+
+          # Copy published files
+          cp -r publish/avalonia/* pkg/usr/lib/elgato-camera-control-avalonia/
+          
+          # Create symlink
+          ln -s /usr/lib/elgato-camera-control-avalonia/ElgatoControl.Avalonia pkg/usr/bin/elgato-camera-control-avalonia
+
+          # Copy desktop entry and icon
+          cp ElgatoControl.Avalonia/elgato-camera-control-avalonia.desktop pkg/usr/share/applications/
+          cp ElgatoControl.Api/app_icon.png pkg/usr/share/pixmaps/elgato-camera-control-avalonia.png
+
+          # Create control file
+          cat <<EOF > pkg/DEBIAN/control
+          Package: elgato-camera-control-avalonia
+          Version: $VERSION
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Depends: ffmpeg, v4l-utils, libc6, libgcc1, libgssapi-krb5-2, libicu70 | libicu72 | libicu74, libssl3, libstdc++6, zlib1g
+          Maintainer: ElgatoCameraPort <noreply@elgatocameraport.io>
+          Description: Desktop camera control panel for Elgato Facecam (Native)
+          EOF
+
+          # Build .deb
+          dpkg-deb --build pkg elgato-camera-control-avalonia.deb
+
+      - name: Verify .deb Packages
+        run: |
+          echo "Inspecting Electron .deb:"
+          dpkg -I ElgatoControl.Api/bin/Desktop/*.deb
+          echo "Inspecting Avalonia .deb:"
+          dpkg -I elgato-camera-control-avalonia.deb
+
       - name: Upload .deb to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ElgatoControl.Api/bin/Desktop/*.deb
+          files: |
+            ElgatoControl.Api/bin/Desktop/*.deb
+            elgato-camera-control-avalonia.deb
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

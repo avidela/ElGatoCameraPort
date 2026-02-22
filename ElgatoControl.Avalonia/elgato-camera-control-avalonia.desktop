@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Elgato Camera Control (Avalonia)
+Comment=Desktop camera control panel for Elgato Facecam (Native)
+Exec=elgato-camera-control-avalonia
+Icon=elgato-camera-control-avalonia
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=camera;elgato;facecam;

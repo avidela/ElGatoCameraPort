@@ -1,20 +1,27 @@
-# ElgatoCameraPort
+## Which frontend should I choose?
 
-A Linux desktop app for controlling the **Elgato Facecam MK.2** (and compatible UVC cameras). Packaged as a native Electron window — no browser required.
+ElgatoCameraPort now offers two official frontends. Both use the same .NET 9 backend but cater to different needs:
 
-Built with a .NET 9 API backend, a React + TypeScript frontend, and Electron.NET for the desktop shell.
+| Frontend | Package | Description | Why choose it? |
+|---|---|---|---|
+| **Electron** | `elgato-camera-control_*.deb` | React + TypeScript + Electron | Modern design, familiar desktop web feel, slightly higher footprint. |
+| **Avalonia** | `elgato-camera-control-avalonia_*.deb` | Native C# + Avalonia | Native look & feel, extremely low memory footprint, very fast. |
 
 ---
 
 ## Install (Linux — Debian/Ubuntu/Mint)
 
-Download the latest `.deb` from the [Releases](../../releases) page and install it:
+Download the `.deb` of your choice from the [Releases](../../releases) page and install it:
 
 ```bash
+# For Electron version
 sudo apt install ./elgato-camera-control_0.1.0_amd64.deb
+
+# OR for Avalonia native version
+sudo apt install ./elgato-camera-control-avalonia_0.1.0_amd64.deb
 ```
 
-This will automatically install `ffmpeg` and `v4l-utils` as dependencies. Launch **Elgato Camera Control** from your application menu.
+Both packages will automatically install `ffmpeg` and `v4l-utils` as dependencies. Launch from your application menu.
 
 ---
 

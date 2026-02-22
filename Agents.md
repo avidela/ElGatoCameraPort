@@ -18,7 +18,8 @@ These are the strictly enforced architectural rules for all AI agents connecting
 
 ### 3. Backend Truth
 - If the hardware state or application boot state needs to change (e.g., forcing "Preset A" on connection), that logic belongs in the `Program.cs` or Service layer of the ASP.NET Core app. Do not hack frontend lifecycles to patch hardware workflows.
-- The backend should support multiple frontend clients gracefully by exposing its REST API on a predictable port or via configuration, regardless of whether it's launched via Electron or as a standalone process for an Avalonia client.
+- **Multi-Client Support**: The backend architecture is designed to support multiple frontends (Electron, Avalonia, Web). All clients MUST consume the same API. 
+- **User Choice**: We provide both Electron (design-focused) and Avalonia (performance-focused) packages. Agents must ensure that any new feature is implemented in the backend first to be instantly available across all clients.
 
 ### 4. Naming Conventions (SOLID)
 - Respect C# MVC/MVVM naming scopes. Hardware abstractions are `Device` wrappers (e.g., `LinuxCameraDevice.cs`), not `Controller` endpoints unless they literally extend `ControllerBase`.
