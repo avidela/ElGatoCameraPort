@@ -9,6 +9,7 @@
 # Electron.NET generated
 /ElgatoControl.Api/ElectronHostHook/
 /ElgatoControl.Api/wwwroot/
+/ElgatoControl.Api/presets.json
 
 # Electron build output
 /bin/Desktop/
