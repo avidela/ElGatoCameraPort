@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using ElgatoControl.Api.Models;
 using ElgatoControl.Api.Services;
+using ElgatoControl.Api.Utilities;
 
 namespace ElgatoControl.Api.Endpoints;
 
@@ -11,7 +12,7 @@ public static class PresetEndpoints
 {
     public static void MapPresetEndpoints(this IEndpointRouteBuilder app)
     {
-        string presetsFile = Path.Combine(Directory.GetCurrentDirectory(), "presets.json");
+        string presetsFile = AppPaths.PresetsFile;
 
         app.MapPost("/api/camera/preset/save/{id}", async (string id, PresetSaveRequest req, ICameraDevice camera) =>
         {

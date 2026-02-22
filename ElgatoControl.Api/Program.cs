@@ -38,7 +38,7 @@ app.MapScreenshotEndpoints();
 using (var scope = app.Services.CreateScope())
 {
     var camera = scope.ServiceProvider.GetRequiredService<ICameraDevice>();
-    string presetsFile = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "presets.json");
+    string presetsFile = ElgatoControl.Api.Utilities.AppPaths.PresetsFile;
 
     if (System.IO.File.Exists(presetsFile))
     {
