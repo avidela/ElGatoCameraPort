@@ -45,6 +45,9 @@ public static class CameraEndpoints
             return Results.Json(new { success = true, formats = camera.GetSupportedFormats() });
         });
 
+        app.MapGet("/api/camera/layout", (ICameraDevice camera) => {
+            return Results.Json(new { success = true, layout = camera.GetLayout() });
+        });
     }
 }
 
