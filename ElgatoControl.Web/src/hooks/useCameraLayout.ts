@@ -13,8 +13,6 @@ export function useCameraLayout(
             .then(res => res.json())
             .then(layoutData => {
                 if (layoutData.success && layoutData.layout) {
-                    setSections(layoutData.layout);
-
                     // 2. Fetch Active Hardware Controls
                     fetch('http://localhost:5000/api/camera/controls')
                         .then(res => res.json())
@@ -35,6 +33,7 @@ export function useCameraLayout(
 
                             setCollapsed(newCollapsed);
                             setValues(newValues);
+                            setSections(layoutData.layout);
                         })
                         .catch(console.error);
                 }
