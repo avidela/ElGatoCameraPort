@@ -9,4 +9,8 @@
         <FluentTheme />
         <StyleInclude Source="/AppStyles.axaml" />
     </Application.Styles>
+
+    <Application.Resources>
+         <FontFamily x:Key="InterFont">avares://Avalonia.Fonts.Inter/Assets#Inter</FontFamily>
+    </Application.Resources>
 </Application>

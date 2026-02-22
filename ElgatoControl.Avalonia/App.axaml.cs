@@ -6,6 +6,7 @@ using ElgatoControl.Avalonia.Views;
 using ElgatoControl.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Runtime.Versioning;
 
 namespace ElgatoControl.Avalonia;
 
@@ -26,11 +27,17 @@ public partial class App : Application
         // Platform-specific Camera Service
         if (OperatingSystem.IsWindows())
         {
-            services.AddSingleton<ICameraDevice, WindowsCameraDevice>();
+            RegisterWindowsServices(services);
+        }
+        else if (OperatingSystem.IsLinux())
+        {
+            RegisterLinuxServices(services);
         }
         else
         {
-            services.AddSingleton<ICameraDevice, LinuxCameraDevice>();
+             // Fallback or error?
+             // For now, let's just not register a camera device or mock it if needed.
+             // But the app expects one.
         }
 
         services.AddSingleton<IStreamService, StreamService>();
@@ -51,5 +58,17 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    [SupportedOSPlatform("windows")]
+    private void RegisterWindowsServices(IServiceCollection services)
+    {
+        services.AddSingleton<ICameraDevice, WindowsCameraDevice>();
+    }
+
+    [SupportedOSPlatform("linux")]
+    private void RegisterLinuxServices(IServiceCollection services)
+    {
+        services.AddSingleton<ICameraDevice, LinuxCameraDevice>();
     }
 }
