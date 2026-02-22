@@ -1,5 +1,5 @@
 # --- Build Frontend ---
-FROM node:20-slim AS build-web
+FROM node:22-slim AS build-web
 WORKDIR /app
 COPY ElgatoControl.Web/package*.json ./
 RUN npm install
