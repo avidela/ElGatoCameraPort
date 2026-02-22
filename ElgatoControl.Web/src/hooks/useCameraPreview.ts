@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { VideoFormat } from '../types';
+import { API_BASE_URL } from '../config';
 
 export function useCameraPreview(isPreviewOn: boolean) {
     const [formats, setFormats] = useState<VideoFormat[]>([]);
@@ -9,7 +10,7 @@ export function useCameraPreview(isPreviewOn: boolean) {
 
     // Fetch available formats on mount
     useEffect(() => {
-        fetch('http://localhost:5000/api/camera/formats')
+        fetch(`${API_BASE_URL}/api/camera/formats`)
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.formats.length > 0) {
@@ -28,13 +29,13 @@ export function useCameraPreview(isPreviewOn: boolean) {
         let timer: number;
         if (isPreviewOn) {
             if (selectedFormat) {
-                setStreamUrl(`http://localhost:5000/api/camera/stream?t=${Date.now()}&w=${selectedFormat.width}&h=${selectedFormat.height}&fps=${selectedFormat.fps}`);
+                setStreamUrl(`${API_BASE_URL}/api/camera/stream?t=${Date.now()}&w=${selectedFormat.width}&h=${selectedFormat.height}&fps=${selectedFormat.fps}`);
             }
         } else {
             // Give the browser a moment to drop the img src before killing the backend process
             timer = window.setTimeout(() => {
                 setStreamUrl('');
-                fetch('http://localhost:5000/api/camera/stream/stop', { method: 'POST' }).catch(() => { });
+                fetch(`${API_BASE_URL}/api/camera/stream/stop`, { method: 'POST' }).catch(() => { });
             }, 500);
         }
         return () => {

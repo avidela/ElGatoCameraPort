@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { ControlSectionData } from '../types';
+import { API_BASE_URL } from '../config';
 
 export function useCameraLayout() {
     const [sections, setSections] = useState<ControlSectionData[]>([]);
@@ -7,11 +8,11 @@ export function useCameraLayout() {
     const [values, setValues] = useState<Record<string, number>>({});
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/camera/layout')
+        fetch(`${API_BASE_URL}/api/camera/layout`)
             .then(res => res.json())
             .then(layoutData => {
                 if (layoutData.success && layoutData.layout) {
-                    fetch('http://localhost:5000/api/camera/controls')
+                    fetch(`${API_BASE_URL}/api/camera/controls`)
                         .then(res => res.json())
                         .then(controlsData => {
                             const newCollapsed: Record<string, boolean> = {};

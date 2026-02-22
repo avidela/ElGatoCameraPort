@@ -9,6 +9,7 @@
   "singleInstance": true,
   "environment": "Production",
   "build": {
+    "icon": "../../../app_icon.png",
     "appId": "io.elgatocameraport.app",
     "productName": "Elgato Camera Control",
     "copyright": "Copyright © 2026",
