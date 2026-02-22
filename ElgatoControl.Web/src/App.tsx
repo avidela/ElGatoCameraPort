@@ -5,55 +5,19 @@ import CameraPreview from './components/CameraPreview';
 import DeviceCard from './components/DeviceCard';
 import ActionFooter from './components/ActionFooter';
 import { useCameraLayout } from './hooks/useCameraLayout';
+import { useCameraPreview } from './hooks/useCameraPreview';
 import type { VideoFormat } from './types';
 
 function App() {
   const [isPreviewOn, setIsPreviewOn] = useState(false); // Default OFF per user request
-  const [showGrid, setShowGrid] = useState(true);
-  const [streamUrl, setStreamUrl] = useState('');
   const [status, setStatus] = useState('Ready');
   const [activePreset, setActivePreset] = useState<string | null>(null);
 
-  // Format state
-  const [formats, setFormats] = useState<VideoFormat[]>([]);
-  const [selectedFormat, setSelectedFormat] = useState<VideoFormat | null>(null);
   const [values, setValues] = useState<Record<string, number>>({});
 
-  // Abstracted Service (Angular style logic extraction)
+  // Abstracted Services (Angular style logic extraction)
   const { sections, collapsed, toggleCollapse } = useCameraLayout(setValues);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/camera/formats')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.formats.length > 0) {
-          const sorted = data.formats.sort((a: VideoFormat, b: VideoFormat) =>
-            (b.width * b.height) - (a.width * a.height) || b.fps - a.fps
-          );
-          setFormats(sorted);
-          setSelectedFormat(sorted[0]);
-        }
-      })
-      .catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    let timer: number;
-    if (isPreviewOn) {
-      if (selectedFormat) {
-        setStreamUrl(`http://localhost:5000/api/camera/stream?t=${Date.now()}&w=${selectedFormat.width}&h=${selectedFormat.height}&fps=${selectedFormat.fps}`);
-      } else {
-        setStreamUrl(`http://localhost:5000/api/camera/stream?t=${Date.now()}`);
-      }
-    } else {
-      // Explicitly tell backend to kill ffmpeg so device is released instantly
-      fetch(`http://localhost:5000/api/camera/stream/stop`, { method: 'POST' }).catch(console.error);
-      setStreamUrl('about:blank');
-      setStatus('Camera released for other apps');
-      timer = window.setTimeout(() => setStreamUrl(''), 100);
-    }
-    return () => clearTimeout(timer);
-  }, [isPreviewOn]);
+  const { formats, selectedFormat, setSelectedFormat, streamUrl, showGrid, setShowGrid } = useCameraPreview(isPreviewOn);
 
   const updateCamera = async (prop: string, val: number) => {
     try {
