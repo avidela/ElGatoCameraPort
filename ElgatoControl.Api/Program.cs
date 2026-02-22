@@ -78,11 +78,7 @@ if (HybridSupport.IsElectronActive)
         }
     });
 
-    window.OnReadyToShow += () => 
-    {
-        window.Show();
-        window.WebContents.OpenDevTools();
-    };
+    window.OnReadyToShow += () => window.Show();
     window.OnClosed += () => Electron.App.Quit();
 
     await app.WaitForShutdownAsync();
