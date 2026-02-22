@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
@@ -46,7 +46,7 @@ jobs:
         working-directory: ElgatoControl.Api
         env:
           DOTNET_ROLL_FORWARD: LatestMajor
-        run: electronize build /target linux /electron-arch x64
+        run: electronize build /target linux /electron-arch x64 /electron-params "--publish=never"
 
       - name: Upload .deb to GitHub Release
         uses: softprops/action-gh-release@v2

@@ -4,6 +4,7 @@
     "imageFile": ""
   },
   "name": "elgato-camera-control",
+  "description": "Desktop camera control panel for Elgato Facecam on Linux",
   "author": "ElgatoCameraPort <noreply@elgatocameraport.io>",
   "singleInstance": true,
   "environment": "Production",
