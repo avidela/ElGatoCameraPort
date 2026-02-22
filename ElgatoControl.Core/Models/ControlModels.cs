@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ElgatoControl.Api.Models;
+namespace ElgatoControl.Core.Models;
 
 public record CameraControl(
     string Id,

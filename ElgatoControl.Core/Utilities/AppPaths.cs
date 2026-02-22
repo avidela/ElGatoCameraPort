@@ -1,4 +1,4 @@
-namespace ElgatoControl.Api.Utilities;
+namespace ElgatoControl.Core.Utilities;
 
 public static class AppPaths
 {

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace ElgatoControl.Api.Utilities;
+namespace ElgatoControl.Core.Utilities;
 
 public static class FFmpegUtility
 {

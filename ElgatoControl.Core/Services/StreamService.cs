@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using ElgatoControl.Api.Utilities;
+using ElgatoControl.Core.Utilities;
 
-namespace ElgatoControl.Api.Services;
+namespace ElgatoControl.Core.Services;
 
 public class StreamService : IStreamService, IAsyncDisposable
 {

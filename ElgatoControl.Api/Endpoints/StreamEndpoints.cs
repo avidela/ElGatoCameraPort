@@ -2,7 +2,7 @@ using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using ElgatoControl.Api.Services;
+using ElgatoControl.Core.Services;
 
 namespace ElgatoControl.Api.Endpoints;
 

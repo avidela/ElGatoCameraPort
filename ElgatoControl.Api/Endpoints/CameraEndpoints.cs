@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
-using ElgatoControl.Api.Models;
-using ElgatoControl.Api.Services;
+using ElgatoControl.Core.Models;
+using ElgatoControl.Core.Services;
 
 namespace ElgatoControl.Api.Endpoints;
 

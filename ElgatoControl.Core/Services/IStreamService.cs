@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ElgatoControl.Api.Services;
+namespace ElgatoControl.Core.Services;
 
 public interface IStreamService
 {

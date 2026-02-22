@@ -1,4 +1,4 @@
-namespace ElgatoControl.Api.Services;
+namespace ElgatoControl.Core.Services;
 
 public enum CameraProperty
 {

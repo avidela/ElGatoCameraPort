@@ -13,4 +13,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ElgatoControl.Core\ElgatoControl.Core.csproj" />
+  </ItemGroup>
 </Project>

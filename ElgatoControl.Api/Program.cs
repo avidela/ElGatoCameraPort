@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using ElgatoControl.Api.Services;
+using ElgatoControl.Core.Services;
 using ElgatoControl.Api.Endpoints;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
@@ -40,7 +40,7 @@ app.MapScreenshotEndpoints();
 using (var scope = app.Services.CreateScope())
 {
     var camera = scope.ServiceProvider.GetRequiredService<ICameraDevice>();
-    string presetsFile = ElgatoControl.Api.Utilities.AppPaths.PresetsFile;
+    string presetsFile = ElgatoControl.Core.Utilities.AppPaths.PresetsFile;
 
     if (System.IO.File.Exists(presetsFile))
     {
